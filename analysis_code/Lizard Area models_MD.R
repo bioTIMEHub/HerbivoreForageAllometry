@@ -142,11 +142,11 @@ critval <- 1.96 ## approx 95% CI
 sizemodepred<-predict.glm(Sizem, type=c("response"),se.fit=TRUE)
 sizeupr <- sizemodepred$fit + (critval * sizemodepred$se.fit)
 sizewr <- sizemodepred$fit - (critval * sizemodepred$se.fit)
-# Making Figure 2
 
 Speciesordered<-ordered(Lizard$Species, levels=c("scopas","striatus", "nigricauda", "unicornis", "frenatus", "sordidus", "rivulatus", "doliatus", "vulpinis"))
 # ordering species acording to Families
 
+# Figure 2 Univariate model bean plots + size
 library(beanplot)
 setEPS()
 postscript("Fig2Emmy.eps")

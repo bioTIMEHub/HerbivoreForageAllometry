@@ -141,11 +141,7 @@ points(unilwr~unicornis1$Size,type="l",lty=2)
 mtext("Naso unicornis",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 
-mylab<-expression(paste(
-  "Area used for foraging"~
-    "(m"^"2"~
-    ")"
-))
+mylab<-expression(Foraging~area~"("~m^2~")")
 
 title(xlab="Total length (cm)",ylab=mylab, outer=T,
       cex.lab=1.5, family="")

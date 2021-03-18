@@ -45,9 +45,9 @@ mtext("C",side=3, line=-1,adj=1,cex=0.7)
 
 
 plot(Area~Species, data=Lizard,las=2, type="p",bty="l",pch=16, cex =0.9,
-     xlab="",ylab="",log="y", ylim=c(1,800), tck=0.03, names=c("S. doliatus","S. frenatus",
-                                                               "A. nigricauda", "S. rivulatus",
-                                                               "Z. scopas", "Ch. spilurus","Ct. striatus",
+     xlab="",ylab="",log="y", ylim=c(1,800), tck=0.03, names=c("S. doliatus","Sc. frenatus",
+                                                               "A. nigricauda", "Sc. rivulatus",
+                                                               "Z. scopas", "Ch. spilurus","C. striatus",
                                                                "N. unicornis", "S. vulpinus"))
 mtext("D",side=3, line=-1,adj=1,cex=0.7)
 

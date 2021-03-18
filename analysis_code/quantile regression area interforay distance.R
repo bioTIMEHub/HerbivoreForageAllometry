@@ -7,7 +7,7 @@ rm(list=ls(all=TRUE))
 ## Import data ##
 Lizard<-read.table(file.choose(),header=T)
 
-library(quantreg)
+require(quantreg)
 #loading quantile regression libary
 
 areadistmed<- rq(Area ~ IntFor, tau=0.5, data=Lizard)
@@ -17,12 +17,11 @@ areadisttop<- rq(Area ~ IntFor, tau=0.05, data=Lizard)
 areadistbot<- rq(Area ~ IntFor, tau=0.95, data=Lizard)
 #quantile regression of Area as Function of Interforay distance, for top 0.05 centile
 
-#making Figure 1 in Emmys paper in eps 
-
+# Generate Fig 4 comparing IntFor with Area
 setEPS()
 postscript("Fig1Emmy.eps")
 
-plot(Lizard$IntFor, Lizard$Area, xlab="inter-foray distance", ylab="foraging area", pch=16)
+plot(Lizard$IntFor, Lizard$Area, xlab="Mean inter-foray distance (m)", ylab=expression(Foraging~area~"("~m^2~")"), pch=16)
 #adding model lines
 abline(areadistmed)
 abline(areadisttop)

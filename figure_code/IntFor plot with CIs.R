@@ -122,7 +122,7 @@ plot(IntFor~Size, data=sordidus,las=1, type="p",bty="l",pch=16, cex =0.9,
 points(sor$fit~sordidus1$Size,type="l")
 points(sorupr~sordidus1$Size,type="l",lty=2)
 points(sorlwr~sordidus1$Size,type="l",lty=2)
-mtext("Chlorurus sordidus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("Chlorurus spilurus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No8 striatus
 plot(IntFor~Size, data=striatus,las=1, type="p",bty="l",pch=16, cex =0.9,

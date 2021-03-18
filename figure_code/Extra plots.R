@@ -1,4 +1,5 @@
-#Plot of mena-interforay distance vs Area
+# Plot of mean-interforay distance vs Area
+# This gets replaced by the quantile regression plot
 # Written: 30/4/2015
 
 ## Clear anything old
@@ -32,11 +33,7 @@ plot(Area~IntFor, data=Heron,
      xlab="",ylab="",tck=0.03)
 mtext("Heron Island",side=3, line=-1,adj=0.05,cex=0.75, family="")
 
-mylab<-expression(paste(
-  "Area used for foraging"~
-    "(m"^"2"~
-    ")"
-))
+mylab<-expression(Foraging~area~"("~m^2~")")
 
 title(xlab="Mean inter-foray distance (m)",ylab=mylab, outer=T,
       cex.lab=1, family="")
