@@ -1,4 +1,4 @@
-# HerbivoreSpatialForage
+# HerbivoreForageAllometry
 **Manuscript**: _Scaling of foraging area with body size in herbivorous reef fishes varies with species_  
 **Authors**: Cher FY Chow, Emmy Wassenius, Andrew S Hoey,  Maria Dornelas
   
