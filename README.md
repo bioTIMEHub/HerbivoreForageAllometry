@@ -13,6 +13,12 @@ Here are some abbreviations are used throughout file naming and code comments:
 - **Tort** = Tortuosity ratio (sum of inter-foray/start-finish)
 - **VarInt** = Variance of inter-foray distances
 
+## Requirements
+Code in this repository is written in R (version 4.0.0 + is preferred).  
+The following packages are required for executing analysis code: `quantreg`  
+Figure generation code requires these packages: `beanplot`, `ggplot2`, `stringr`, and `patchwork`  
+The relevant required packages are implemented in each file as `require(package)`.
+
 ## Repository structure
 **src**: Data files used for this study.  
 **analysis_code**: Contains most of the data exploration and processing scripts.  
