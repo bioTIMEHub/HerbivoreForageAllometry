@@ -1,6 +1,6 @@
 # HerbivoreForageAllometry
 **Manuscript**: _Scaling of foraging area with body size in herbivorous reef fishes varies with species_  
-**Authors**: Cher FY Chow, Emmy Wassenius, Andrew S Hoey,  Maria Dornelas
+**Authors**: Cher FY Chow, Emmy Wassenius, Maria Dornelas, Andrew S Hoey  
   
 This repo contains data and code used for the analysis and figure generation of this paper on the foraging allometry of reef fish herbivory.
 Here are some abbreviations are used throughout file naming and code comments:
