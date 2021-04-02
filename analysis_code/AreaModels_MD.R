@@ -4,6 +4,7 @@
 # Written/updated 5/2/15
 # updated by MD on 12 July 2016 to generate Fig 2 after North shore writing trip
 # updated by CC on 4 Feb 2021 to generate model selection summary table
+# CC changes model selection criterion to AICc
 
 ## Clear anything old
 rm(list=ls(all=TRUE))
@@ -115,25 +116,24 @@ model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
                 'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
                 'SizeSSFunc', 'Sizem')
 
-AICall<-AIC(SSDiet, SSSpecies, SizeDiet, SizeDietint,SizeFunc,
-            SizeFuncint, SizeSS, SizeSSDiet, SizeSSSpecies, SizeSSint,
-            SizeSpecies, SizeSpeciesint,SSm, Speciesm, Funcm, Dietm, SSFunc,
-            SizeSSFunc, Sizem)
-AICall$AIC <- sapply(AICall$AIC, round, 3)
+model_comparison <- tibble(model=model_list)
+model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
+model_comparison$AICc <- model_comparison$AICc %>% round(., 3)
+model_comparison <- model_comparison %>% arrange(AICc)
 
 # also by residual deviance
-AICall$ResDev <- sapply(mget(model_list), deviance)
-AICall$ResDev <- sapply(AICall$ResDev, round, 3)
+model_comparison$ResDev <- sapply(mget(model_list), deviance)
+model_comparison$ResDev <- sapply(model_comparison$ResDev, round, 3)
 
-# rank them by AIC
-require(dplyr)
-AICall <- AICall %>% arrange(AIC, ResDev)
-AICall$dAIC <- rep('', dim(AICall)[1])
-for (i in 1:dim(AICall)[1]-1) { # calculate AIC difference after ranking
-  AICall$dAIC[i] <- with(AICall, AIC[i+1]-AIC[i]) %>% round(., 3)
+# calculate dAICc
+model_comparison$dAIC <- rep('', nrow(model_comparison))
+for (i in 2:nrow(model_comparison)) { # calculate AIC difference after ranking
+  model_comparison$dAIC[i] <- with(model_comparison, AICc[1]-AICc[i])
 }
 
-write.csv(AICall, 'model_selection_table.csv')
+model_comparison$dAIC <- model_comparison$dAIC %>% as.numeric() %>% round(., 3)
+
+write.csv(model_comparison, 'area_selectiontable.csv')
 
 #Establishing CIs
 critval <- 1.96 ## approx 95% CI
