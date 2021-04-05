@@ -5,11 +5,13 @@
 # Written/updated 02/04/2021
 # Adapted by CC from area models script written by MD
 
+
+# Environment set up ------------------------------------------------------
+
 ## Clear anything old
 rm(list=ls(all=TRUE))
 require(dplyr) # for data wrangling
 require(performance) # model checks
-
 
 ## Import data ##
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -30,9 +32,11 @@ forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
 forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
 str(forage.data)
-#********************************************************************************
 
-# all possible candidates
+
+# Model fitting -----------------------------------------------------------
+
+# fit all possible candidates
 
 SizeSSFunc<-glm(formula=Tort~Size+SS+Func, family=Gamma(link="log"), data=forage.data)
 
@@ -112,14 +116,29 @@ summary(Funcm)
 summary(Dietm)
 summary(SizeSSFunc) 
 summary(Sizem)
-
-#**************************************************************************
 #7 models without NAs
 
-model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
-                'SizeFuncint', 'SizeSS', 'SizeSSDiet', 'SizeSSSpecies', 'SizeSSint',
-                'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
-                'SizeSSFunc', 'Sizem')
+
+# Model comparison + selection --------------------------------------------
+
+model_list <- c('SizeSSDiet',
+                'SizeSSSpecies',
+                'SizeSS',
+                'SizeSpecies', 
+                'SizeDiet',
+                'SizeFunc',
+                'SizeSpeciesint',
+                'SizeDietint',
+                'SizeFuncint',
+                'SSSpecies',
+                'SSDiet',
+                'SSFunc', 
+                'SSm',
+                'Speciesm',
+                'Funcm',
+                'Dietm',
+                'SizeSSFunc', 
+                'Sizem')
 
 tort_model_comparison <- tibble(model=model_list)
 tort_model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
@@ -133,13 +152,14 @@ tort_model_comparison$ResDev <- sapply(tort_model_comparison$ResDev, round, 3)
 # calculate dAICc
 tort_model_comparison$dAIC <- rep('', nrow(tort_model_comparison))
 for (i in 2:nrow(tort_model_comparison)) { # calculate AIC difference after ranking
-  tort_model_comparison$dAIC[i] <- with(tort_model_comparison, AICc[1]-AICc[i])
+  tort_model_comparison$dAIC[i] <- with(tort_model_comparison, AICc[i]-AICc[1])
 }
 
 tort_model_comparison$dAIC <- tort_model_comparison$dAIC %>% as.numeric() %>% round(., 3)
 
 write.csv(tort_model_comparison, 'tort_selectiontable.csv')
 saveRDS(SizeSpecies, '../original/src/TortModel.rds') # save the selected model object
+save(list=model_list, file='tortmodels_all.RData') # save this as an RData object for loading elsewhere
 
 # Performance/residual checks ---------------------------------------------
 

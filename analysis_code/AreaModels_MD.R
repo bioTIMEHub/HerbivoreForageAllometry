@@ -102,7 +102,7 @@ summary(Sizem)
 model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
                 'SizeFuncint', 'SizeSS', 'SizeSSDiet', 'SizeSSSpecies', 'SizeSSint',
                 'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
-                'SizeSSFunc', 'Sizem')
+                'SizeSSFunc', 'Sizem') # list of candidates without NAs for comparison
 
 area_model_comparison <- tibble(model=model_list)
 area_model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
@@ -116,36 +116,9 @@ area_model_comparison$ResDev <- sapply(area_model_comparison$ResDev, round, 3)
 # calculate dAICc
 area_model_comparison$dAIC <- rep('', nrow(area_model_comparison))
 for (i in 2:nrow(area_model_comparison)) { # calculate AIC difference after ranking
-  area_model_comparison$dAIC[i] <- with(area_model_comparison, AICc[1]-AICc[i])
+  area_model_comparison$dAIC[i] <- with(area_model_comparison, AICc[i]-AICc[1])
 }
 
 area_model_comparison$dAIC <- area_model_comparison$dAIC %>% as.numeric() %>% round(., 3)
 write.csv(area_model_comparison, 'area_selectiontable.csv')
-saveRDS(SizeSpeciesint, '../originals/src/AreaModel.rds')
-
-#Establishing CIs
-critval <- 1.96 ## approx 95% CI
-
-#Finding CIs
-sizemodepred<-predict.glm(Sizem, type=c("response"),se.fit=TRUE)
-sizeupr <- sizemodepred$fit + (critval * sizemodepred$se.fit)
-sizewr <- sizemodepred$fit - (critval * sizemodepred$se.fit)
-
-Speciesordered<-ordered(forage.data$Species, levels=c("scopas","striatus", "nigricauda", "unicornis", "frenatus", "sordidus", "rivulatus", "doliatus", "vulpinis"))
-# ordering species acording to Families
-
-# Figure 2 Univariate model bean plots + size
-library(beanplot)
-setEPS()
-postscript("Fig2Emmy.eps")
-par(mfrow =c(3,2))
-# setting up figure with 3x2 plots
-plot(forage.data$Size, forage.data$Area, log="y", xlab="size", ylab="foraging area", pch=16)
-points(sizemodepred$fit ~ forage.data$Size,type="l")
-points(sizeupr ~ forage.data$Size,type="l",lty=2)
-points(sizewr ~ forage.data$Size,type="l",lty=2)
-beanplot(forage.data$Area ~ forage.data$SS,bty="n",las=1,xaxt="n")
-beanplot(forage.data$Area ~ forage.data$Func,bty="n",las=1,xaxt="n")
-beanplot(forage.data$Area ~ sort(levels(forage.data$Species)),bty="n",las=1)
-beanplot(forage.data$Area ~ forage.data$Diet,bty="n",las=1,xaxt="n")
-dev.off()
+save(list=model_list, file='areamodels_all.RData') # save this as an RData object for loading elsewhere
