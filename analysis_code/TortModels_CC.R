@@ -8,7 +8,8 @@
 ## Clear anything old
 rm(list=ls(all=TRUE))
 require(dplyr) # for data wrangling
-require(performance)
+require(performance) # model checks
+
 
 ## Import data ##
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -32,6 +33,7 @@ str(forage.data)
 #********************************************************************************
 
 # all possible candidates
+
 SizeSSFunc<-glm(formula=Tort~Size+SS+Func, family=Gamma(link="log"), data=forage.data)
 
 SizeSSDiet<-glm(formula=Tort~Size+SS+Diet,family=Gamma(link="log"), data=forage.data)
@@ -56,7 +58,7 @@ SizeFunc<-glm(formula=Tort~Size+Func,family=Gamma(link="log"), data=forage.data)
 
 SizeSSint<-glm(formula=Tort~Size*SS,family=Gamma(link="log"), data=forage.data)
 
-SizeSpeciesint<-glm(formula=Tort~Size*Species,family=Gamma(link="log"), data=forage.data)
+SizeSpeciesint<-glm(formula=Tort~Size*Species, family=Gamma(link='log'), data=forage.data)
 
 SizeDietint<-glm(formula=Tort~Size*Diet,family=Gamma(link="log"), data=forage.data)
 
@@ -94,7 +96,7 @@ summary(SizeSS)
 summary(SizeSpecies) 
 summary(SizeDiet)
 summary(SizeFunc)
-summary(SizeSSint)
+summary(SizeSSint) # did not converge
 summary(SizeSpeciesint)
 summary(SizeDietint)
 summary(SizeFuncint)
@@ -111,8 +113,6 @@ summary(Dietm)
 summary(SizeSSFunc) 
 summary(Sizem)
 
-
-
 #**************************************************************************
 #7 models without NAs
 
@@ -121,22 +121,30 @@ model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
                 'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
                 'SizeSSFunc', 'Sizem')
 
-model_comparison <- tibble(model=model_list)
-model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
-model_comparison$AICc <- model_comparison$AICc %>% round(., 3)
-model_comparison <- model_comparison %>% arrange(AICc)
+tort_model_comparison <- tibble(model=model_list)
+tort_model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
+tort_model_comparison$AICc <- tort_model_comparison$AICc %>% round(., 3)
+tort_model_comparison <- tort_model_comparison %>% arrange(AICc)
 
 # also by residual deviance
-model_comparison$ResDev <- sapply(mget(model_list), deviance)
-model_comparison$ResDev <- sapply(model_comparison$ResDev, round, 3)
+tort_model_comparison$ResDev <- sapply(mget(model_list), deviance)
+tort_model_comparison$ResDev <- sapply(tort_model_comparison$ResDev, round, 3)
 
 # calculate dAICc
-model_comparison$dAIC <- rep('', nrow(model_comparison))
-for (i in 2:nrow(model_comparison)) { # calculate AIC difference after ranking
-  model_comparison$dAIC[i] <- with(model_comparison, AICc[1]-AICc[i])
+tort_model_comparison$dAIC <- rep('', nrow(tort_model_comparison))
+for (i in 2:nrow(tort_model_comparison)) { # calculate AIC difference after ranking
+  tort_model_comparison$dAIC[i] <- with(tort_model_comparison, AICc[1]-AICc[i])
 }
 
-model_comparison$dAIC <- model_comparison$dAIC %>% as.numeric() %>% round(., 3)
+tort_model_comparison$dAIC <- tort_model_comparison$dAIC %>% as.numeric() %>% round(., 3)
 
-write.csv(model_comparison, 'tort_selectiontable.csv')
+write.csv(tort_model_comparison, 'tort_selectiontable.csv')
+saveRDS(SizeSpecies, '../original/src/TortModel.rds') # save the selected model object
+
+# Performance/residual checks ---------------------------------------------
+
+check_model(get(tort_model_comparison$model[2]))
+# select the second model based on residual deviance as the tiebreaker after dAICc
+
+plot(get(tort_model_comparison$model[2]))
 

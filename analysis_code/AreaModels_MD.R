@@ -8,6 +8,8 @@
 
 ## Clear anything old
 rm(list=ls(all=TRUE))
+require(dplyr)
+require(performance)
 
 ## Import data ##
 Lizard<-read.table(file.choose(),header=T)
@@ -116,24 +118,24 @@ model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
                 'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
                 'SizeSSFunc', 'Sizem')
 
-model_comparison <- tibble(model=model_list)
-model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
-model_comparison$AICc <- model_comparison$AICc %>% round(., 3)
-model_comparison <- model_comparison %>% arrange(AICc)
+area_model_comparison <- tibble(model=model_list)
+area_model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
+area_model_comparison$AICc <- area_model_comparison$AICc %>% round(., 3)
+area_model_comparison <- area_model_comparison %>% arrange(AICc)
 
 # also by residual deviance
-model_comparison$ResDev <- sapply(mget(model_list), deviance)
-model_comparison$ResDev <- sapply(model_comparison$ResDev, round, 3)
+area_model_comparison$ResDev <- sapply(mget(model_list), deviance)
+area_model_comparison$ResDev <- sapply(area_model_comparison$ResDev, round, 3)
 
 # calculate dAICc
-model_comparison$dAIC <- rep('', nrow(model_comparison))
-for (i in 2:nrow(model_comparison)) { # calculate AIC difference after ranking
-  model_comparison$dAIC[i] <- with(model_comparison, AICc[1]-AICc[i])
+area_model_comparison$dAIC <- rep('', nrow(area_model_comparison))
+for (i in 2:nrow(area_model_comparison)) { # calculate AIC difference after ranking
+  area_model_comparison$dAIC[i] <- with(area_model_comparison, AICc[1]-AICc[i])
 }
 
-model_comparison$dAIC <- model_comparison$dAIC %>% as.numeric() %>% round(., 3)
+area_model_comparison$dAIC <- area_model_comparison$dAIC %>% as.numeric() %>% round(., 3)
 
-write.csv(model_comparison, 'area_selectiontable.csv')
+write.csv(area_model_comparison, 'area_selectiontable.csv')
 
 #Establishing CIs
 critval <- 1.96 ## approx 95% CI

@@ -44,9 +44,9 @@ sco<-predict.glm(Areamodel,newdata=scopas1, type=c("response"),se.fit=TRUE)
 scoupr <- sco$fit + (critval * sco$se.fit)
 scolwr <- sco$fit - (critval * sco$se.fit)
 
-sor<-predict.glm(Areamodel,newdata=sordidus1, type=c("response"),se.fit=TRUE)
-sorupr <- sor$fit + (critval * sor$se.fit)
-sorlwr <- sor$fit - (critval * sor$se.fit)
+spi<-predict.glm(Areamodel,newdata=spilurus1, type=c("response"),se.fit=TRUE)
+spiupr <- spi$fit + (critval * spi$se.fit)
+spilwr <- spi$fit - (critval * spi$se.fit)
 
 stri<-predict.glm(Areamodel,newdata=striatus1, type=c("response"),se.fit=TRUE)
 striupr <- stri$fit + (critval * stri$se.fit)
@@ -116,13 +116,13 @@ points(vulupr~vulpinus1$Size,type="l",lty=2)
 points(vullwr~vulpinus1$Size,type="l",lty=2)
 mtext("Siganus vulpinus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
-#No7 sordidus
-plot(Area~Size, data=sordidus,las=1, type="p",bty="l",pch=16, cex =0.9,
+#No7 spilurus
+plot(Area~Size, data=spilurus,las=1, type="p",bty="l",pch=16, cex =0.9,
      xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,800),log="y")
-points(sor$fit~sordidus1$Size,type="l")
-points(sorupr~sordidus1$Size,type="l",lty=2)
-points(sorlwr~sordidus1$Size,type="l",lty=2)
-mtext("Chlorurus sordidus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+points(spi$fit~spilurus1$Size,type="l")
+points(spiupr~spilurus1$Size,type="l",lty=2)
+points(spilwr~spilurus1$Size,type="l",lty=2)
+mtext("Chlorurus spilurus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No8 striatus
 plot(Area~Size, data=striatus,las=1, type="p",bty="l",pch=16, cex =0.9,
