@@ -11,104 +11,90 @@ rm(list=ls(all=TRUE))
 require(dplyr)
 require(performance)
 
-## Import data ##
-Lizard<-read.table(file.choose(),header=T)
-Lizard<- Lizard[order(Lizard$Size),]
-
-## For Lizard (and Heron) data, there are some abbreviations
-# Species= Species
-# SS = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
-# Diet = Diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
-# Func = Functional group (excavator=1, scraper=2, grazer/detritivore=3, browser=4)
-# Size = Total length (cm)
-# IntFor = Mean Inter-foray distance (m)
-# Area = Foraging Area
-# Tort = Tortuosity ratio (sum of inter-foray/start-finish)
-# VarInt = Variance of inter-foray distances
-
-Lizard$SS<-factor(Lizard$SS)
-Lizard$Func<-factor(Lizard$Func)
-Lizard$Species<-factor(Lizard$Species)
-Lizard$Diet<-factor(Lizard$Diet)
+# make sure we load data
+forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+forage.data<- forage.data %>% arrange(Species, Size)
+# fix column data type
+forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
 
 #********************************************************************************
 
-SizeSSFunc<-glm(formula=Area~Size+SS+Func, family=Gamma(link="log"), data=Lizard)
+SizeSSFunc<-glm(formula=Area~Size+SS+Func, family=Gamma(link="log"), data=forage.data)
 summary(SizeSSFunc) 
 
-SizeSSDiet<-glm(formula=Area~Size+SS+Diet,family=Gamma(link="log"), data=Lizard)
+SizeSSDiet<-glm(formula=Area~Size+SS+Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSDiet)
 
-SizeSSSpecies<-glm(formula=Area~Size+SS+Species,family=Gamma(link="log"), data=Lizard)
+SizeSSSpecies<-glm(formula=Area~Size+SS+Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSSpecies)
 
-SizeSSFuncint<-glm(formula=Area~Size*SS*Func,family=Gamma(link="log"), data=Lizard)
+SizeSSFuncint<-glm(formula=Area~Size*SS*Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSFuncint) #NAs present
 
-SizeSSDietint<-glm(formula=Area~Size*SS*Diet,family=Gamma(link="log"), data=Lizard)
+SizeSSDietint<-glm(formula=Area~Size*SS*Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSDietint) #NAs present
 
-SizeSSSpeciesint<-glm(formula=Area~Size*SS*Species,family=Gamma(link="log"), data=Lizard)
+SizeSSSpeciesint<-glm(formula=Area~Size*SS*Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSSpeciesint) #NAs present
 
-SizeSSFuncDiet<-glm(formula=Area~Size+SS+Func+Diet,family=Gamma(link="log"), data=Lizard)
+SizeSSFuncDiet<-glm(formula=Area~Size+SS+Func+Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSFuncDiet) # One NA
 
-SizeSS<-glm(formula=Area~Size+SS,family=Gamma(link="log"), data=Lizard)
+SizeSS<-glm(formula=Area~Size+SS,family=Gamma(link="log"), data=forage.data)
 summary(SizeSS)
 
-SizeSpecies<-glm(formula=Area~Size+Species,family=Gamma(link="log"), data=Lizard)
+SizeSpecies<-glm(formula=Area~Size+Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpecies)
 
-SizeDiet<-glm(formula=Area~Size+Diet,family=Gamma(link="log"), data=Lizard)
+SizeDiet<-glm(formula=Area~Size+Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeDiet)
 
-SizeFunc<-glm(formula=Area~Size+Func,family=Gamma(link="log"), data=Lizard)
+SizeFunc<-glm(formula=Area~Size+Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFunc)
 
-SizeSSint<-glm(formula=Area~Size*SS,family=Gamma(link="log"), data=Lizard)
+SizeSSint<-glm(formula=Area~Size*SS,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSint)
 
-SizeSpeciesint<-glm(formula=Area~Size*Species,family=Gamma(link="log"), data=Lizard)
+SizeSpeciesint<-glm(formula=Area~Size*Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpeciesint)
 
-SizeDietint<-glm(formula=Area~Size*Diet,family=Gamma(link="log"), data=Lizard)
+SizeDietint<-glm(formula=Area~Size*Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeDietint)
 
-SizeFuncint<-glm(formula=Area~Size*Func,family=Gamma(link="log"), data=Lizard)
+SizeFuncint<-glm(formula=Area~Size*Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFuncint)
 
-SSSpecies<-glm(formula=Area~Species+SS,family=Gamma(link="log"), data=Lizard)
+SSSpecies<-glm(formula=Area~Species+SS,family=Gamma(link="log"), data=forage.data)
 summary(SSSpecies)
 
-SSSpeciesint<-glm(formula=Area~Species*SS,family=Gamma(link="log"), data=Lizard)
+SSSpeciesint<-glm(formula=Area~Species*SS,family=Gamma(link="log"), data=forage.data)
 summary(SSSpeciesint) #Too many NAs
 
-SSDiet<-glm(formula=Area~Diet+SS,family=Gamma(link="log"), data=Lizard)
+SSDiet<-glm(formula=Area~Diet+SS,family=Gamma(link="log"), data=forage.data)
 summary(SSDiet)
 
-SSDietint<-glm(formula=Area~Diet*SS,family=Gamma(link="log"), data=Lizard)
+SSDietint<-glm(formula=Area~Diet*SS,family=Gamma(link="log"), data=forage.data)
 summary(SSDietint) # Too many NAs
 
-SSFunc<-glm(formula=Area~Func+SS,family=Gamma(link="log"), data=Lizard)
+SSFunc<-glm(formula=Area~Func+SS,family=Gamma(link="log"), data=forage.data)
 summary(SSFunc) 
 
-SSFuncint<-glm(formula=Area~Func*SS, family=Gamma(link="log"),data=Lizard)
+SSFuncint<-glm(formula=Area~Func*SS, family=Gamma(link="log"),data=forage.data)
 summary(SSFuncint) # NAs present
 
-SSm<-glm(formula=Area~SS,family=Gamma(link="log"), data=Lizard)
+SSm<-glm(formula=Area~SS,family=Gamma(link="log"), data=forage.data)
 summary(SSm)
 
-Speciesm<-glm(formula=Area~Species,family=Gamma(link="log"), data=Lizard)
+Speciesm<-glm(formula=Area~Species,family=Gamma(link="log"), data=forage.data)
 summary(Speciesm)
 
-Funcm<-glm(formula=Area~Func,family=Gamma(link="log"), data=Lizard)
+Funcm<-glm(formula=Area~Func,family=Gamma(link="log"), data=forage.data)
 summary(Funcm)
 
-Dietm<-glm(formula=Area~Diet, family=Gamma(link="log"),data=Lizard)
+Dietm<-glm(formula=Area~Diet, family=Gamma(link="log"),data=forage.data)
 summary(Dietm)
 
-Sizem<-glm(formula=Area~Size, family=Gamma(link="log"),data=Lizard)
+Sizem<-glm(formula=Area~Size, family=Gamma(link="log"),data=forage.data)
 summary(Sizem)
 #**************************************************************************
 #19 models without NAs
@@ -134,8 +120,8 @@ for (i in 2:nrow(area_model_comparison)) { # calculate AIC difference after rank
 }
 
 area_model_comparison$dAIC <- area_model_comparison$dAIC %>% as.numeric() %>% round(., 3)
-
 write.csv(area_model_comparison, 'area_selectiontable.csv')
+saveRDS(SizeSpeciesint, '../originals/src/AreaModel.rds')
 
 #Establishing CIs
 critval <- 1.96 ## approx 95% CI
@@ -145,7 +131,7 @@ sizemodepred<-predict.glm(Sizem, type=c("response"),se.fit=TRUE)
 sizeupr <- sizemodepred$fit + (critval * sizemodepred$se.fit)
 sizewr <- sizemodepred$fit - (critval * sizemodepred$se.fit)
 
-Speciesordered<-ordered(Lizard$Species, levels=c("scopas","striatus", "nigricauda", "unicornis", "frenatus", "sordidus", "rivulatus", "doliatus", "vulpinis"))
+Speciesordered<-ordered(forage.data$Species, levels=c("scopas","striatus", "nigricauda", "unicornis", "frenatus", "sordidus", "rivulatus", "doliatus", "vulpinis"))
 # ordering species acording to Families
 
 # Figure 2 Univariate model bean plots + size
@@ -154,12 +140,12 @@ setEPS()
 postscript("Fig2Emmy.eps")
 par(mfrow =c(3,2))
 # setting up figure with 3x2 plots
-plot(Lizard2$Size, Lizard2$Area, log="y", xlab="size", ylab="foraging area", pch=16)
-points(sizemodepred$fit~Lizard$Size,type="l")
-points(sizeupr~Lizard$Size,type="l",lty=2)
-points(sizewr~Lizard$Size,type="l",lty=2)
-beanplot(Lizard$Area~Lizard$SS,bty="n",las=1,xaxt="n")
-beanplot(Lizard$Area~Lizard$Func,bty="n",las=1,xaxt="n")
-beanplot(Lizard$Area~Speciesordered,bty="n",las=1)
-beanplot(Lizard$Area~Lizard$Diet,bty="n",las=1,xaxt="n")
+plot(forage.data$Size, forage.data$Area, log="y", xlab="size", ylab="foraging area", pch=16)
+points(sizemodepred$fit ~ forage.data$Size,type="l")
+points(sizeupr ~ forage.data$Size,type="l",lty=2)
+points(sizewr ~ forage.data$Size,type="l",lty=2)
+beanplot(forage.data$Area ~ forage.data$SS,bty="n",las=1,xaxt="n")
+beanplot(forage.data$Area ~ forage.data$Func,bty="n",las=1,xaxt="n")
+beanplot(forage.data$Area ~ sort(levels(forage.data$Species)),bty="n",las=1)
+beanplot(forage.data$Area ~ forage.data$Diet,bty="n",las=1,xaxt="n")
 dev.off()
