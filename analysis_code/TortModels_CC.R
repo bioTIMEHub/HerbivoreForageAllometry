@@ -11,7 +11,7 @@
 ## Clear anything old
 rm(list=ls(all=TRUE))
 require(dplyr) # for data wrangling
-require(performance) # model checks
+require(DHARMa) # model checks
 
 ## Import data ##
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -163,7 +163,8 @@ save(list=model_list, file='tortmodels_all.RData') # save this as an RData objec
 
 # Performance/residual checks ---------------------------------------------
 
-check_model(get(tort_model_comparison$model[2]))
+check_model <- simulateResiduals(fittedModel = SizeSpecies, n = 500)
+plot(check_model)
 # select the second model based on residual deviance as the tiebreaker after dAICc
 
 plot(get(tort_model_comparison$model[2]))
