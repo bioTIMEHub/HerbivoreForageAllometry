@@ -157,7 +157,9 @@ for (i in 2:nrow(tort_model_comparison)) { # calculate AIC difference after rank
 
 tort_model_comparison$dAIC <- tort_model_comparison$dAIC %>% as.numeric() %>% round(., 3)
 
-write.csv(tort_model_comparison, 'tort_selectiontable.csv')
+write.csv(tort_model_comparison, 'tort_selectiontable.csv') # model comparison output
+write.csv(summary(SizeSpecies)$coefficients, 'tort-sizespecies.csv') # model parameter estimates output
+write.csv(summary(SizeDiet)$coefficients, 'tort-sizediet.csv') # diet to discuss in case
 saveRDS(SizeSpecies, '../original/src/TortModel.rds') # save the selected model object
 save(list=model_list, file='tortmodels_all.RData') # save this as an RData object for loading elsewhere
 

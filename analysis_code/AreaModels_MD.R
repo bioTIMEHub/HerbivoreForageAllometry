@@ -120,5 +120,6 @@ for (i in 2:nrow(area_model_comparison)) { # calculate AIC difference after rank
 }
 
 area_model_comparison$dAIC <- area_model_comparison$dAIC %>% as.numeric() %>% round(., 3)
-write.csv(area_model_comparison, 'area_selectiontable.csv')
+write.csv(area_model_comparison, 'area_selectiontable.csv') # model comparison table output
+write.csv(summary(SizeSpecies)$coefficients, 'area-sizespecies.csv') # model parameter estimates output
 save(list=model_list, file='areamodels_all.RData') # save this as an RData object for loading elsewhere

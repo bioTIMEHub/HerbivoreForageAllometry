@@ -95,7 +95,7 @@ A.body <- base +
               fill = 'transparent', color = 'black', linetype='dashed') +
   geom_point(data=forage.data, aes(y=Area, x = Size), size = 1.7, alpha = 0.8, shape =21) +
   geom_line(data = bind_cols(Fit = area.pred[[1]]$fit, Size = forage.data$Size), aes(x=Size, y=Fit), color = 'black') +
-  labs(x='Total length (cm)', title = 'a) Body size')
+  xlab('Total length (cm)')
 
 A.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
@@ -103,7 +103,7 @@ A.sp <- base +
   geom_jitter(data = forage.data, aes(x=Species, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[2]]$fit, Species = forage.data$Species) %>% distinct(), 
              aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
-  labs(x='Species', title='b) Species') + scale_x_discrete(labels=sp_names) +
+  xlab('Species') + scale_x_discrete(labels=sp_names) +
   theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic'))
 
 A.ss <- base +
@@ -112,7 +112,7 @@ A.ss <- base +
   geom_jitter(data = forage.data, aes(x=SS, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[3]]$fit, SS = forage.data$SS) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=SS), size=1, color = 'black') +
-  labs(x = 'Social structure', title = 'c) Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
+  xlab('Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
 
 A.diet <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
@@ -120,7 +120,7 @@ A.diet <- base +
   geom_jitter(data = forage.data, aes(x=Diet, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[4]]$fit, Diet = forage.data$Diet) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Diet), size=1, color = 'black') +
-  labs(x = 'Diet', title = 'd) Diet') + scale_x_discrete(labels=str_wrap(diet_names, width = 10)) +
+  xlab('Diet') + scale_x_discrete(labels=str_wrap(diet_names, width = 10)) +
   theme(axis.text.x=element_text(angle = 30, hjust = 1))
 
 A.func <- base +
@@ -129,9 +129,7 @@ A.func <- base +
   geom_jitter(data = forage.data, aes(x=Func, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[5]]$fit, Func = forage.data$Func) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Func), size=1, color = 'black') +
-  labs(x = 'Functional group', title = 'e) Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
-
-(A.body + A.sp) / (A.ss + A.diet + A.func) & scale_y_continuous(trans='log', limits = c(1,800), breaks = c(0,1,5,10,50,100,500,1000))
+  xlab('Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
 
 # Tort plot panels --------------------------------------------------------
 
@@ -140,7 +138,7 @@ T.body <- base +
               fill = 'transparent', color = 'black', linetype='dashed') +
   geom_point(data=forage.data, aes(y=Tort, x = Size), size = 1.7, alpha = 0.8, shape=21) +
   geom_line(data = bind_cols(Fit = tort.pred[[1]]$fit, Size = forage.data$Size), aes(x=Size, y=Fit), color = 'black') +
-  labs(x='Total length (cm)', title = 'a) Body size')
+  xlab('Total length (cm)')
 
 T.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
@@ -148,7 +146,7 @@ T.sp <- base +
   geom_jitter(data = forage.data, aes(x=Species, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[2]]$fit, Species = forage.data$Species) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
-  labs(x='Species', title = 'b) Species') + scale_x_discrete(labels=sp_names) +
+  xlab('Species') + scale_x_discrete(labels=sp_names) +
   theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic'))
 
 T.ss <- base +
@@ -157,7 +155,7 @@ T.ss <- base +
   geom_jitter(data = forage.data, aes(x=SS, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[3]]$fit, SS = forage.data$SS) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=SS), size=1, color = 'black') +
-  labs(x='Social Structure', title = 'c) Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
+  xlab('Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
 
 T.diet <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
@@ -165,7 +163,7 @@ T.diet <- base +
   geom_jitter(data = forage.data, aes(x=Diet, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[4]]$fit, Diet = forage.data$Diet) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Diet), size=1, color = 'black') +
-  labs(x='Diet', title = 'd) Diet') + scale_x_discrete(labels=str_wrap(diet_names, width = 10)) +
+  xlab('Diet') + scale_x_discrete(labels=str_wrap(diet_names, width = 10)) +
   theme(axis.text.x=element_text(angle = 30, hjust = 1))
 
 T.func <- base +
@@ -174,10 +172,13 @@ T.func <- base +
   geom_jitter(data = forage.data, aes(x=Func, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[5]]$fit, Func = forage.data$Func) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Func), size=1, color = 'black') +
-  labs(x='Functional group', title = 'e) Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
+  xlab('Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
+
+(A.body + A.sp) / (A.ss + A.diet + A.func) & scale_y_continuous(trans='log', limits = c(1,800), breaks = c(0,1,5,10,50,100,500,1000))
+ggsave('Fig_univariate_area.svg', device = 'svg', width = 260, height = 160, units = 'mm')
 
 (T.body + T.sp) / (T.ss + T.diet + T.func) & scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100))
-
+ggsave('Fig_univariate_tort.svg', device = 'svg', width = 260, height = 160, units = 'mm')
 
 # Univariate model bean plots + size
 library(beanplot)
