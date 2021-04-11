@@ -5,10 +5,13 @@
 # Written/updated 05/04/2021
 # Author CC, similar to Area plot with CIs
 
+## Clear anything old
+rm(list=ls(all=TRUE)) 
+
 require(tidyverse)
 
 # read in the model fit result from our analysis
-tort.model <- readRDS('../original/src/TortModel.rds')
+tort.model <- readRDS('analysis_outputs/TortModel.rds')
 # make sure we load data
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
@@ -100,7 +103,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'frenatus'),las=1, type
 points(fren$fit ~ sp.data[[2]]$Size,type="l")
 points(frenupr ~ sp.data[[2]]$Size,type="l",lty=2)
 points(frenlwr ~ sp.data[[2]]$Size,type="l",lty=2)
-mtext("Scarus frenatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("Sc. frenatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No2 nigricauda
 plot(Tort ~ Size, data=forage.data %>% filter(Species == 'nigricauda'),las=1, type="p",bty="l",pch=16, cex=0.9,
@@ -108,7 +111,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'nigricauda'),las=1, ty
 points(nig$fit ~ sp.data[[3]]$Size,type="l")
 points(nigupr ~ sp.data[[3]]$Size,type="l",lty=2)
 points(niglwr ~ sp.data[[3]]$Size,type="l",lty=2)
-mtext("Acanthurus nigricauda",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("A. nigricauda",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No3 doliatus
 plot(Tort ~ Size, data=forage.data %>% filter(Species == 'doliatus'),las=1, type="p",bty="l",pch=16, cex=0.9,
@@ -116,7 +119,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'doliatus'),las=1, type
 points(dol$fit ~ sp.data[[1]]$Size,type="l")
 points(dolupr ~ sp.data[[1]]$Size,type="l",lty=2)
 points(dollwr ~ sp.data[[1]]$Size,type="l",lty=2)
-mtext("Siganus doliatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("S. doliatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No4 rivulatus
 plot(Tort ~ Size, data=forage.data %>% filter(Species == 'rivulatus'),las=1, type="p",bty="l",pch=16, cex=0.9,
@@ -124,7 +127,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'rivulatus'),las=1, typ
 points(riv$fit ~ sp.data[[4]]$Size,type="l")
 points(rivupr ~ sp.data[[4]]$Size,type="l",lty=2)
 points(rivlwr ~ sp.data[[4]]$Size,type="l",lty=2)
-mtext("Scarus rivulatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("Sc. rivulatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No5 scopas
 plot(Tort ~ Size, data=forage.data %>% filter(Species == 'scopas'),las=1, type="p",bty="l",pch=16, cex=0.9,
@@ -132,7 +135,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'scopas'),las=1, type="
 points(sco$fit ~ sp.data[[5]]$Size,type="l")
 points(scoupr ~ sp.data[[5]]$Size,type="l",lty=2)
 points(scolwr ~ sp.data[[5]]$Size,type="l",lty=2)
-mtext("Zebrasoma scopas",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("Z. scopas",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No6 vulpinus
 plot(Tort ~ Size, data=forage.data %>% filter(Species == 'vulpinis'),las=1, type="p",bty="l",pch=16, cex=0.9,
@@ -140,7 +143,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'vulpinis'),las=1, type
 points(vul$fit ~ sp.data[[9]]$Size,type="l")
 points(vulupr ~ sp.data[[9]]$Size,type="l",lty=2)
 points(vullwr ~ sp.data[[9]]$Size,type="l",lty=2)
-mtext("Siganus vulpinus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("S. vulpinus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No7 spilurus
 # might be called by older synonym sordidus
@@ -149,7 +152,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'sordidus'),las=1, type
 points(spi$fit ~ sp.data[[6]]$Size,type="l")
 points(spiupr ~ sp.data[[6]]$Size,type="l",lty=2)
 points(spilwr ~ sp.data[[6]]$Size,type="l",lty=2)
-mtext("Chlorurus spilurus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("Ch. spilurus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No8 striatus
 plot(Tort ~ Size, data=forage.data %>% filter(Species == 'striatus'),las=1, type="p",bty="l",pch=16, cex=0.9,
@@ -157,7 +160,7 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'striatus'),las=1, type
 points(stri$fit ~ sp.data[[7]]$Size,type="l")
 points(striupr ~ sp.data[[7]]$Size,type="l",lty=2)
 points(strilwr ~ sp.data[[7]]$Size,type="l",lty=2)
-mtext("Ctenochaetus striatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("C. striatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 #No9 unicornis
 plot(Tort ~ Size, data=forage.data %>% filter(Species == 'unicornis'),las=1, type="p",bty="l",pch=16, cex=0.9,
@@ -165,7 +168,8 @@ plot(Tort ~ Size, data=forage.data %>% filter(Species == 'unicornis'),las=1, typ
 points(uni$fit ~ sp.data[[8]]$Size,type="l")
 points(uniupr ~ sp.data[[8]]$Size,type="l",lty=2)
 points(unilwr ~ sp.data[[8]]$Size,type="l",lty=2)
-mtext("Naso unicornis",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
+mtext("N. unicornis",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
 
 title(xlab="Total length (cm)",ylab='Foraging tortuosity', outer=T,
       cex.lab=1.5, family="")
+
