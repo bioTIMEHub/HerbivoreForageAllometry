@@ -160,11 +160,11 @@ tort_model_comparison <- AICc(SizeSSDiet,
                               SizeSSFunc, 
                               Sizem)
 tort_model_comparison$AICc <- tort_model_comparison$AICc %>% round(., 3)
-tort_model_comparison <- tort_model_comparison %>% arrange(AICc)
 
 # also by residual deviance
 tort_model_comparison$ResDev <- sapply(mget(model_list), deviance)
 tort_model_comparison$ResDev <- sapply(tort_model_comparison$ResDev, round, 3)
+tort_model_comparison <- tort_model_comparison %>% arrange(AICc)
 
 # calculate dAICc
 tort_model_comparison$dAIC <- rep('', nrow(tort_model_comparison))

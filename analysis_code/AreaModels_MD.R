@@ -110,11 +110,11 @@ area_model_comparison <- AICc(SSDiet, SSSpecies, SizeDiet, SizeDietint,SizeFunc,
                               SizeSpecies, SizeSpeciesint,SSm, Speciesm, Funcm, Dietm, SSFunc,
                               SizeSSFunc, Sizem)
 area_model_comparison$AICc <- area_model_comparison$AICc %>% round(., 3)
-area_model_comparison <- area_model_comparison %>% arrange(AICc)
 
 # also by residual deviance
 area_model_comparison$ResDev <- sapply(mget(model_list), deviance)
 area_model_comparison$ResDev <- sapply(area_model_comparison$ResDev, round, 3)
+area_model_comparison <- area_model_comparison %>% arrange(AICc)
 
 # calculate dAICc
 area_model_comparison$dAIC <- rep('', nrow(area_model_comparison))
