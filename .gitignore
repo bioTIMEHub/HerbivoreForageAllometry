@@ -28,4 +28,4 @@ vignettes/*.pdf
 
 *.DS_Store
 # ignore output tables and data
-*.csv
+/analysis_outputs/*
