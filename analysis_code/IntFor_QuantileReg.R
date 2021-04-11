@@ -1,49 +1,55 @@
+
 # Quantile regression between foraging area and mean interforay distance
 # M Dornelas 26.06.2016
 
 ## Clear anything old
 rm(list=ls(all=TRUE)) 
 
+require(quantreg) # quantile regression libary
+require(tidyverse) # plotting
+require(patchwork) # multipanel
+
 ## Import data ##
-Lizard<-read.table(file.choose(),header=T)
+forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T)
+species <- c(
+  'Sc. rivulatus',
+  'S. doliatus',
+  'A. nigricauda', 
+  'Sc. frenatus', 
+  'Ch. spilurus', # updated taxonomy split Sc. sordidus into two species
+  'N. unicornis',
+  'C. striatus',
+  'S. vulpinus',
+  'Z. scopas'
+)
+names(species) <- unique(forage.data$Species)
+forage.data$SpLong <- forage.data$Species # make a duplicate of the row for replacement
+forage.data$SpLong <- str_replace_all(forage.data$SpLong, species) # replace
 
-require(quantreg)
-#loading quantile regression libary
-
-areadistmed<- rq(Area ~ IntFor, tau=0.5, data=Lizard)
+areadistmed<- rq(Area ~ IntFor, tau=0.5, data=forage.data)
 #quantile regression of Area as Function of Interforay distance, for median
-areadisttop<- rq(Area ~ IntFor, tau=0.05, data=Lizard)
+areadisttop<- rq(Area ~ IntFor, tau=0.05, data=forage.data)
 #quantile regression of Area as Function of Interforay distance, for bottom 0.05 centile
-areadistbot<- rq(Area ~ IntFor, tau=0.95, data=Lizard)
+areadistbot<- rq(Area ~ IntFor, tau=0.95, data=forage.data)
 #quantile regression of Area as Function of Interforay distance, for top 0.05 centile
 
-# Generate Fig 4 comparing IntFor with Area
-setEPS()
-postscript("Fig1Emmy.eps")
+# Generate Fig 5 comparing IntFor with Area
+QR <- ggplot(data=forage.data) +
+  geom_abline(data = NULL, slope = areadistbot$coefficients[2], intercept = areadistbot$coefficients[1], size = 0.5, color = 'grey70') +
+  geom_abline(data = NULL, slope = areadistmed$coefficients[2], intercept = areadistmed$coefficients[1], size = 0.5, color = 'grey70') +
+  geom_abline(data = NULL, slope = areadisttop$coefficients[2], intercept = areadisttop$coefficients[1], size = 0.5, color = 'grey70') +
+  geom_point(aes(x=IntFor, y=Area, shape = SpLong), size = 2, alpha = 0.7) +
+  scale_shape_manual(values=c(0:8,10), name='Species') +
+  guides(shape = 'none') +
+  theme_bw(base_size=13) + 
+  theme(panel.grid=element_blank(), legend.text = element_text(face='italic'))
 
-plot(Lizard$IntFor, Lizard$Area, xlab="Mean inter-foray distance (m)", ylab=expression(Foraging~area~"("~m^2~")"), pch=16)
-#adding model lines
-abline(areadistmed)
-abline(areadisttop)
-abline(areadistbot)
-dev.off()
+IntForArea <- ggplot(data=forage.data) +
+  geom_point(aes(x=IntFor, y=Area, shape = SpLong), size = 2, alpha = 0.7) +
+  scale_shape_manual(values=c(0:8,10), name='Species') +
+  theme_bw(base_size=13) + 
+  theme(panel.grid=element_blank(), legend.text = element_text(face='italic')) +
+  scale_y_continuous(trans='log', breaks=c(1,5,10,50,100,500), limits=c(1,500))
 
-# Making Figure 2
+(QR + IntForArea) + plot_layout(guides='collect')
 
-Speciesordered<-ordered(Lizard$Species, levels=c("scopas","striatus", "nigricauda", "unicornis", "frenatus", "sordidus", "rivulatus", "doliatus", "vulpinis"))
-# ordering species acording to Families
-msize<- glm(formula=Area~Size, family=Gamma(link="log"),data=Lizard)
-
-
-library(beanplot)
-setEPS()
-postscript("Fig2Emmy.eps")
-par(mfrow =c(3,2))
-# setting up figure with 3x2 plots
-plot(Lizard$Size, log(Lizard$Area), xlab="size", ylab="log(foraging area)", pch=16)
-abline(msize)
-beanplot(log(Lizard$Area)~Lizard$SS,bty="n",las=1,xaxt="n")
-beanplot(log(Lizard$Area)~Lizard$Func,bty="n",las=1,xaxt="n")
-beanplot(log(Lizard$Area)~Speciesordered,bty="n",las=1)
-beanplot(log(Lizard$Area)~Lizard$Diet,bty="n",las=1,xaxt="n")
-dev.off()
