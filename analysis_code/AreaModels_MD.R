@@ -10,6 +10,7 @@
 rm(list=ls(all=TRUE))
 require(dplyr)
 require(performance)
+require(MuMIn)
 
 # make sure we load data
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -104,8 +105,10 @@ model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
                 'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
                 'SizeSSFunc', 'Sizem') # list of candidates without NAs for comparison
 
-area_model_comparison <- tibble(model=model_list)
-area_model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
+area_model_comparison <- AICc(SSDiet, SSSpecies, SizeDiet, SizeDietint,SizeFunc,
+                              SizeFuncint, SizeSS, SizeSSDiet, SizeSSSpecies, SizeSSint,
+                              SizeSpecies, SizeSpeciesint,SSm, Speciesm, Funcm, Dietm, SSFunc,
+                              SizeSSFunc, Sizem)
 area_model_comparison$AICc <- area_model_comparison$AICc %>% round(., 3)
 area_model_comparison <- area_model_comparison %>% arrange(AICc)
 

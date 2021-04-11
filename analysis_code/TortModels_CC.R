@@ -12,6 +12,7 @@
 rm(list=ls(all=TRUE))
 require(dplyr) # for data wrangling
 require(DHARMa) # model checks
+require(MuMIn)
 
 ## Import data ##
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -140,8 +141,24 @@ model_list <- c('SizeSSDiet',
                 'SizeSSFunc', 
                 'Sizem')
 
-tort_model_comparison <- tibble(model=model_list)
-tort_model_comparison$AICc <- sapply(mget(model_list), performance_aicc)
+tort_model_comparison <- AICc(SizeSSDiet,
+                              SizeSSSpecies,
+                              SizeSS,
+                              SizeSpecies, 
+                              SizeDiet,
+                              SizeFunc,
+                              SizeSpeciesint,
+                              SizeDietint,
+                              SizeFuncint,
+                              SSSpecies,
+                              SSDiet,
+                              SSFunc, 
+                              SSm,
+                              Speciesm,
+                              Funcm,
+                              Dietm,
+                              SizeSSFunc, 
+                              Sizem)
 tort_model_comparison$AICc <- tort_model_comparison$AICc %>% round(., 3)
 tort_model_comparison <- tort_model_comparison %>% arrange(AICc)
 
