@@ -174,11 +174,16 @@ T.func <- base +
                 aes(ymax=Fit, ymin=Fit, x=Func), size=1, color = 'black') +
   xlab('Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
 
-(A.body + A.sp) / (A.ss + A.diet + A.func) & scale_y_continuous(trans='log', limits = c(1,800), breaks = c(0,1,5,10,50,100,500,1000))
+(A.body + A.sp) / (A.ss + A.diet + A.func) & scale_y_continuous(trans='log', limits = c(1,800), breaks = c(0,1,5,10,50,100,500))
 ggsave('Fig_univariate_area.svg', device = 'svg', width = 260, height = 160, units = 'mm')
 
 (T.body + T.sp) / (T.ss + T.diet + T.func) & scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100))
 ggsave('Fig_univariate_tort.svg', device = 'svg', width = 260, height = 160, units = 'mm')
+
+univar.patch <- (A.body / A.sp / A.ss / A.diet / A.func) * scale_y_continuous(trans='log', limits = c(1,1000), breaks = c(0,1,5,10,50,100,500,1000)) * ylab(expression('Foraging area ('~m^2~')')) | 
+  (T.body / T.sp / T.ss / T.diet / T.func) * scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100)) * ylab('Tortuosity')
+univar.patch
+ggsave('../figures/Fig2_univariate_areatort.pdf', device='pdf', width = 200, height = 400, units = 'mm')
 
 # Univariate model bean plots + size
 library(beanplot)
