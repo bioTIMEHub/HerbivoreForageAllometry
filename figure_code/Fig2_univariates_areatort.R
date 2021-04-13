@@ -185,18 +185,18 @@ univar.patch <- (A.body / A.sp / A.ss / A.diet / A.func) * scale_y_continuous(tr
 univar.patch
 ggsave('../figures/Fig2_univariate_areatort.pdf', device='pdf', width = 200, height = 400, units = 'mm')
 
-# Univariate model bean plots + size
-library(beanplot)
-setEPS()
-postscript("Fig2Emmy.eps")
-par(mfrow =c(3,2))
-# setting up figure with 3x2 plots
-plot(forage.data$Size, forage.data$Area, log="y", xlab="size", ylab="foraging area", pch=16)
-points(sizemodepred$fit ~ forage.data$Size,type="l")
-points(sizeupr ~ forage.data$Size,type="l",lty=2)
-points(sizewr ~ forage.data$Size,type="l",lty=2)
-beanplot(forage.data$Area ~ forage.data$SS,bty="n",las=1,xaxt="n")
-beanplot(forage.data$Area ~ forage.data$Func,bty="n",las=1,xaxt="n")
-beanplot(forage.data$Area ~ sort(levels(forage.data$Species)),bty="n",las=1)
-beanplot(forage.data$Area ~ forage.data$Diet,bty="n",las=1,xaxt="n")
-dev.off()
+# Earlier iteration
+# library(beanplot)
+# setEPS()
+# postscript("Fig2Emmy.eps")
+# par(mfrow =c(3,2))
+# # setting up figure with 3x2 plots
+# plot(forage.data$Size, forage.data$Area, log="y", xlab="size", ylab="foraging area", pch=16)
+# points(sizemodepred$fit ~ forage.data$Size,type="l")
+# points(sizeupr ~ forage.data$Size,type="l",lty=2)
+# points(sizewr ~ forage.data$Size,type="l",lty=2)
+# beanplot(forage.data$Area ~ forage.data$SS,bty="n",las=1,xaxt="n")
+# beanplot(forage.data$Area ~ forage.data$Func,bty="n",las=1,xaxt="n")
+# beanplot(forage.data$Area ~ sort(levels(forage.data$Species)),bty="n",las=1)
+# beanplot(forage.data$Area ~ forage.data$Diet,bty="n",las=1,xaxt="n")
+# dev.off()
