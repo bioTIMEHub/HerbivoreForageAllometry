@@ -11,16 +11,20 @@ require(patchwork) # multipanel
 
 ## Import data ##
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T)
+forage.data<- forage.data %>% arrange(Species, Size)
+
+# fix column data type
+forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
 species <- c(
-  'Sc. rivulatus',
   'S. doliatus',
+  'Sc. frenatus',
   'A. nigricauda', 
-  'Sc. frenatus', 
-  'Ch. spilurus', # updated taxonomy split Sc. sordidus into two species
-  'N. unicornis',
+  'Sc. rivulatus', 
+  'Z. scopas', 
+  'Ch. spilurus',
   'C. striatus',
-  'S. vulpinus',
-  'Z. scopas'
+  'N. unicornis',
+  'S. vulpinus'
 )
 names(species) <- unique(forage.data$Species)
 forage.data$SpLong <- forage.data$Species # make a duplicate of the row for replacement
@@ -39,19 +43,10 @@ QR <- ggplot(data=forage.data) +
   geom_abline(data = NULL, slope = areadistmed$coefficients[2], intercept = areadistmed$coefficients[1], size = 0.5, color = 'grey70') +
   geom_abline(data = NULL, slope = areadisttop$coefficients[2], intercept = areadisttop$coefficients[1], size = 0.5, color = 'grey70') +
   geom_point(aes(x=IntFor, y=Area, shape = SpLong), size = 2, alpha = 0.7) +
-  scale_shape_manual(values=c(0:8,10), name='Species') +
-  guides(shape = 'none') + theme_bw(base_size=13) + 
+  scale_shape_manual(values=c(0:8,10), name='Species') + 
+  theme_bw(base_size=13) + 
   labs(x='Mean inter-foray distance (m)', y=expression(Foraging~area~"("~m^2~")")) +
   theme(panel.grid=element_blank(), legend.text = element_text(face='italic'))
+QR
 
-IntForArea <- ggplot(data=forage.data) +
-  geom_point(aes(x=IntFor, y=Area, shape = SpLong), size = 2, alpha = 0.7) +
-  scale_shape_manual(values=c(0:8,10), name='Species') +
-  theme_bw(base_size=13) + 
-  theme(panel.grid=element_blank(), legend.text = element_text(face='italic')) +
-  labs(x='Mean inter-foray distance (m)', y=NULL) +
-  scale_y_continuous(trans='log', breaks=c(1,5,10,50,100,500), limits=c(1,500))
-
-(QR + IntForArea) + plot_layout(guides='collect')
-
-ggsave('../figures/Fig_quantreg.svg', device = 'svg', width = 280, height = 110, unit = 'mm', dpi = 300)
+ggsave('../figures/Fig5_quantreg.svg', device = 'svg', width = 180, height = 120, unit = 'mm', dpi = 300)
