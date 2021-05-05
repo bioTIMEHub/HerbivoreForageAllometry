@@ -5,6 +5,7 @@
 
 rm(list=ls(all=TRUE))
 require(tidyverse)
+require(viridis)
 require(patchwork)
 load('areamodels_all.RData')
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -39,11 +40,6 @@ for (i in 1:5) { # calculate predictions and CIs for each univariate model
   area.ci[[i]] <- data.frame(upper = area.pred[[i]]$fit + (critval * area.pred[[i]]$se.fit), 
                         lower = area.pred[[i]]$fit - (critval * area.pred[[i]]$se.fit))
 }
-model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
-                'SizeFuncint', 'SizeSS', 'SizeSSDiet', 'SizeSSSpecies', 'SizeSSint',
-                'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
-                'SizeSSFunc', 'Sizem') # list of candidates without NAs for comparison
-rm(list=model_list)
 
 # again for tortuosity
 load('tortmodels_all.RData') # load tortuosity model data
@@ -55,40 +51,39 @@ for (i in 1:5) { # calculate predictions and CIs for each univariate model
                              lower = tort.pred[[i]]$fit - (critval * tort.pred[[i]]$se.fit))
 }
 
-model_list <- c('SizeSSDiet',
-                'SizeSSSpecies',
-                'SizeSS',
-                'SizeSpecies', 
-                'SizeDiet',
-                'SizeFunc',
-                'SizeSpeciesint',
-                'SizeDietint',
-                'SizeFuncint',
-                'SSSpecies',
-                'SSDiet',
-                'SSFunc', 
-                'SSm',
-                'Speciesm',
-                'Funcm',
-                'Dietm',
-                'SizeSSFunc', 
-                'Sizem')
-
-rm(list=model_list)
-
 
 # Area plot panels --------------------------------------------------------------
 
-# order species by family
-forage.data$Species <- factor(forage.data$Species, levels=c("nigricauda", "striatus","unicornis", "scopas", "sordidus", "frenatus", "rivulatus", "doliatus", "vulpinis"))
-sp_names <- c("A. nigricauda", "C. striatus", "N. unicornis", "Z. scopas","Ch. spilurus", "Sc. frenatus", "Sc. rivulatus", "S. doliatus", "S. vulpinus")
+species <- as.vector(rep('', n_distinct(forage.data$Species)))
+
+species <- c(
+  'S. doliatus',
+  'Sc. frenatus',
+  'A. nigricauda', 
+  'Sc. rivulatus', 
+  'Z. scopas', 
+  'Ch. spilurus',
+  'C. striatus',
+  'N. unicornis',
+  'S. vulpinus'
+)
+names(species) <- unique(forage.data$Species) %>% sort()
+
+# order species by mean foraging area
+area_sp_order <- forage.data %>% group_by(Species) %>% summarise(meanArea=mean(Area)) %>% arrange(meanArea) %>% select(Species) %>% as_vector() %>% as.character()
+forage.data$A_Sp <- factor(forage.data$Species, levels=area_sp_order)
+
+# name object for x-axis labels
+area_sp_names <- area_sp_order
+area_sp_names <- str_replace_all(area_sp_names, species) # replace
+
 diet_names <- c('EAM', 'macro- algae', 'detritus', 'corticated algae', 'cyano- bacteria')
 func_names <- c('excavator', 'scraper', 'grazer/detritivore', 'browser')
 ss_names <- c('single', 'pair', 'single sp school', 'mixed-sp school')
 
 base <- ggplot() +
   theme_classic(base_size = 12, base_family = 'Helvetica') + ylab(element_blank())
-# Body size
+
 
 A.body <- base +
   geom_ribbon(data = area.ci[[1]] %>% bind_cols(., Size = forage.data$Size), aes(ymax=upper, ymin=lower, x=Size),
@@ -99,11 +94,11 @@ A.body <- base +
 
 A.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
-  geom_violin(data = forage.data, aes(x=Species, y=Area), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=Species, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
-  geom_errorbar(data = bind_cols(Fit = area.pred[[2]]$fit, Species = forage.data$Species) %>% distinct(), 
+  geom_violin(data = forage.data, aes(x=A_Sp, y=Area), color = 'darkblue', size = 0.25, trim=F, fill='#9adbed') +
+  geom_jitter(data = forage.data, aes(x=A_Sp, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_errorbar(data = bind_cols(Fit = area.pred[[2]]$fit, Species = forage.data$A_Sp) %>% distinct(), 
              aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
-  xlab('Species') + scale_x_discrete(labels=sp_names) +
+  xlab('Species') + scale_x_discrete(labels=area_sp_names) +
   theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic'))
 
 A.ss <- base +
@@ -133,6 +128,14 @@ A.func <- base +
 
 # Tort plot panels --------------------------------------------------------
 
+# reorder species by increasing mean tortuosity
+tort_sp_order <- forage.data %>% group_by(Species) %>% summarise(meanTort=mean(Tort)) %>% arrange(meanTort) %>% select(Species) %>% as_vector() %>% as.character()
+forage.data$T_Sp <- factor(forage.data$Species, levels=tort_sp_order)
+
+# name object for x-axis labels
+tort_sp_names <- tort_sp_order
+tort_sp_names <- str_replace_all(tort_sp_names, species) # replace
+
 T.body <- base +
   geom_ribbon(data = tort.ci[[1]] %>% bind_cols(., Size = forage.data$Size), aes(ymax=upper, ymin=lower, x=Size),
               fill = 'transparent', color = 'black', linetype='dashed') +
@@ -142,11 +145,11 @@ T.body <- base +
 
 T.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
-  geom_violin(data = forage.data, aes(x=Species, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=Species, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
-  geom_errorbar(data = bind_cols(Fit = tort.pred[[2]]$fit, Species = forage.data$Species) %>% distinct(), 
+  geom_violin(data = forage.data, aes(x=T_Sp, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
+  geom_jitter(data = forage.data, aes(x=T_Sp, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_errorbar(data = bind_cols(Fit = tort.pred[[2]]$fit, Species = forage.data$T_Sp) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
-  xlab('Species') + scale_x_discrete(labels=sp_names) +
+  xlab('Species') + scale_x_discrete(labels=tort_sp_names) +
   theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic'))
 
 T.ss <- base +
@@ -174,11 +177,16 @@ T.func <- base +
                 aes(ymax=Fit, ymin=Fit, x=Func), size=1, color = 'black') +
   xlab('Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
 
-(A.body + A.sp) / (A.ss + A.diet + A.func) & scale_y_continuous(trans='log', limits = c(1,800), breaks = c(0,1,5,10,50,100,500))
-ggsave('Fig_univariate_area.svg', device = 'svg', width = 260, height = 160, units = 'mm')
 
-(T.body + T.sp) / (T.ss + T.diet + T.func) & scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100))
-ggsave('Fig_univariate_tort.svg', device = 'svg', width = 260, height = 160, units = 'mm')
+
+# Export ------------------------------------------------------------------
+
+# Layout option: area and tort separate
+# (A.body + A.sp) / (A.ss + A.diet + A.func) & scale_y_continuous(trans='log', limits = c(1,800), breaks = c(0,1,5,10,50,100,500))
+# ggsave('Fig_univariate_area.svg', device = 'svg', width = 260, height = 160, units = 'mm')
+# 
+# (T.body + T.sp) / (T.ss + T.diet + T.func) & scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100))
+# ggsave('Fig_univariate_tort.svg', device = 'svg', width = 260, height = 160, units = 'mm')
 
 univar.patch <- (A.body / A.sp / A.ss / A.diet / A.func) * scale_y_continuous(trans='log', limits = c(1,1000), breaks = c(0,1,5,10,50,100,500,1000)) * ylab(expression('Foraging area ('~m^2~')')) | 
   (T.body / T.sp / T.ss / T.diet / T.func) * scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100)) * ylab('Tortuosity')
