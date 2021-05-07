@@ -9,14 +9,18 @@
 rm(list=ls(all=TRUE)) 
 
 require(tidyverse)
+require(patchwork)
+require(scales)
+require(viridisLite)
 
-# read in the model fit result from our analysis
-tort.model <- readRDS('analysis_outputs/TortModel.rds')
 # make sure we load data
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
 forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+
+# model fit result from our analysis
+tort.model <- glm(data=forage.data, formula=Tort ~ Size + Species, family = Gamma(link='log'))
 
 # Some abbreviations/metadata to be aware of
 # Species= Species
@@ -36,140 +40,115 @@ critval <- 1.96 ## approx 95% CI
 
 # Create new data for predictions -----------------------------------------
 
-sp.data <- as.list(rep('', length(unique(forage.data$Species))))
-names(sp.data) <- unique(forage.data$Species)
+sp.data <- as.list(rep('', 9))
+pred <- as.list(rep('', 9))
+ci <- as.list(rep('', 9))
 
-for (i in 1:length(unique(forage.data$Species))) {
+names(sp.data) <- unique(forage.data$Species)
+names(pred) <- unique(forage.data$Species)
+names(ci) <- unique(forage.data$Species)
+
+for (i in 1:9) {
   sp.data[[i]] <- data.frame(
     Species = rep(unique(forage.data$Species)[i], 100), 
     Size = runif(100, min = forage.data %>% filter(Species == unique(Species)[i]) %>% select(Size) %>% as_vector() %>% min(),
                  max = forage.data %>% filter(Species == unique(Species)[i]) %>% select(Size) %>% as_vector() %>% max())
   )
   sp.data[[i]] <- sp.data[[i]] %>% arrange(Size)
+  
+  pred[[i]] <- predict.glm(tort.model, type=c("response"), se.fit=TRUE, newdata=sp.data[[i]])
+  ci[[i]] <- data.frame(upper = pred[[i]]$fit + (critval * pred[[i]]$se.fit), 
+                    lower = pred[[i]]$fit - (critval * pred[[i]]$se.fit))
+  
 }
 
+# predictions for species if body size was held at the mean
 
-# Calculate CIs and predictions -------------------------------------------
+part.data <- forage.data %>% mutate(Size = mean(Size)) %>% select(Species, Size)
+pred.part <- predict(tort.model, type=c("response"), se.fit=TRUE,
+                     newdata=)
+# data frame of predictions, confidence intervals, and variables
+partials <- data.frame(upper = pred.part$fit + (critval * pred.part$se.fit), 
+                      lower = pred.part$fit - (critval * pred.part$se.fit),
+                      pred = pred.part$fit) %>% bind_cols(., part.data) %>% distinct()
+# order by descending 
+tort_order <- c('scopas', 'doliatus', 'striatus', 'frenatus', 'nigricauda', 'sordidus', 'rivulatus', 'unicornis', 'vulpinis')
+partials$Species <- factor(partials$Species, levels=tort_order)
 
-dol<-predict.glm(tort.model,newdata=sp.data[[1]], type=c("response"),se.fit=TRUE)
-dolupr <- dol$fit + (critval * dol$se.fit)
-dollwr <- dol$fit - (critval * dol$se.fit)
+# Panel loop --------------------------------------------------------------
 
-fren<-predict.glm(tort.model,newdata=sp.data[[2]], type=c("response"),se.fit=TRUE)
-frenupr <- fren$fit + (critval * fren$se.fit)
-frenlwr <- fren$fit - (critval * fren$se.fit)
+species <- c(
+  'S. doliatus',
+  'Sc. frenatus',
+  'A. nigricauda', 
+  'Sc. rivulatus', 
+  'Z. scopas', 
+  'Ch. spilurus',
+  'C. striatus',
+  'N. unicornis',
+  'S. vulpinus'
+)
 
-nig<-predict.glm(tort.model,newdata=sp.data[[3]], type=c("response"),se.fit=TRUE)
-nigupr <- nig$fit + (critval * nig$se.fit)
-niglwr <- nig$fit - (critval * nig$se.fit)
+names(species) <- unique(forage.data$Species)
 
-riv<-predict.glm(tort.model,newdata=sp.data[[4]], type=c("response"),se.fit=TRUE)
-rivupr <- riv$fit + (critval * riv$se.fit)
-rivlwr <- riv$fit - (critval * riv$se.fit)
+# Base R option
+# par(mfrow=c(3,3))
+# par(mar=c(1.5,1.5,1.5,1.5))
+# par(oma=c(5,5,0,0))
 
-sco<-predict.glm(tort.model,newdata=sp.data[[5]], type=c("response"),se.fit=TRUE)
-scoupr <- sco$fit + (critval * sco$se.fit)
-scolwr <- sco$fit - (critval * sco$se.fit)
+pal <- viridis(9, option='C', begin=0.1, end=0.9)
+pal.a <- viridis(9, option='C', begin=0.1, end=0.9, alpha=0.3)
 
-spi<-predict.glm(tort.model,newdata=sp.data[[6]], type=c("response"),se.fit=TRUE)
-spiupr <- spi$fit + (critval * spi$se.fit)
-spilwr <- spi$fit - (critval * spi$se.fit)
+# the partial regression for species
+all.panel <- ggplot(data = partials) + 
+  geom_linerange(aes(x=Species, ymin=lower, ymax=upper), color = 'grey30', size=0.5) +
+  geom_point(aes(x=Species, y=pred, fill=Species), color='grey30', shape=21, size=4.5) +
+  scale_fill_viridis(option='C', begin=0.1, end=0.9, discrete=T) +
+  guides(fill=F) +
+  theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
+  scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0.5,20), breaks = c(1,5,10,20)) +
+  scale_x_discrete(labels=str_replace_all(tort_order, species)) +
+  labs(x=NULL, y='Tortuosity') +
+  theme(axis.text.x=element_text(angle=30, hjust = 1, face = 'italic'))
+all.panel
+ggsave('../figures/Fig3a_tort_sp.pdf', device='pdf', width = 140, height = 55, units = 'mm')
 
-stri<-predict.glm(tort.model,newdata=sp.data[[7]], type=c("response"),se.fit=TRUE)
-striupr <- stri$fit + (critval * stri$se.fit)
-strilwr <- stri$fit - (critval * stri$se.fit)
+# empty list to input plot objects into
+panel <- as.list(rep('', 9))
 
-uni<-predict.glm(tort.model,newdata=sp.data[[8]], type=c("response"),se.fit=TRUE)
-uniupr <- uni$fit + (critval * uni$se.fit)
-unilwr <- uni$fit - (critval * uni$se.fit)
+for (i in 1:9) {
+panel[[i]] <- ggplot() +
+    geom_point(data = forage.data %>% filter(!Species == tort_order[i]),
+               aes(y=Tort, x=Size), shape=21, fill='transparent', color='grey90', size=0.9) +
+    geom_ribbon(data = ci[[tort_order[i]]] %>% bind_cols(., Size = sp.data[[tort_order[i]]]$Size), aes(ymax=upper, ymin=lower, x=Size), 
+                fill = pal.a[i], color = 'grey30', linetype='dashed', size=0.7) +
+    geom_line(data = bind_cols(Fit = pred[[tort_order[i]]]$fit, Size = sp.data[[tort_order[i]]]$Size), aes(x=Size, y=Fit), color = 'black') +
+    geom_point(data = forage.data %>% filter(Species == tort_order[i]), aes(y=Tort, x=Size), color='black', shape=21, fill=pal[i], size=1.7) +
+    annotate("text", label = species[tort_order[i]], x = 7, y = 100, fontface=3, hjust=0) +
+    theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
+    scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,100), breaks = c(1,5,10,20,50,100))
 
-vul<-predict.glm(tort.model,newdata=sp.data[[9]], type=c("response"),se.fit=TRUE)
-vulupr <- vul$fit + (critval * vul$se.fit)
-vullwr <- vul$fit - (critval * vul$se.fit)
+  ## Base R option
+  # plot(Tort ~ Size, data=forage.data %>% filter(!Species == unique(Species)[i]), las=1, type="p", bty="l",pch=1, col='#AAAAAA88',
+  #      xlab="",ylab="",tck=0.06, xlim=c(5,35), ylim=c(1,100),log="y")
+  # points(Tort ~ Size, data=forage.data %>% filter(Species == unique(Species)[i]), type="p",bty="l", pch=16, cex=1.2)
+  # points(pred[[i]]$fit ~ sp.data[[i]]$Size, type="l")
+  # points(ci[[i]]$upper ~ sp.data[[i]]$Size, type="l", lty=2)
+  # points(ci[[i]]$lower ~ sp.data[[i]]$Size, type="l", lty=2)
+  # mtext(species[i], side=3, line=-1, adj=0.05, family="", font=3)
+}
 
+for (i in c(2,3,5,6,8,9)) {
+  panel[[i]] <- panel[[i]] + theme(axis.text.y=element_blank())
+}
+for (i in c(1:6)) {
+  panel[[i]] <- panel[[i]] + theme(axis.text.x=element_blank())
+}
 
-# Visualise predictions with uncertainty ----------------------------------
+(panel[[1]] + panel[[2]] + panel[[3]] + panel[[4]] + panel[[5]] + panel[[6]] + panel[[7]] + panel[[8]] + panel[[9]])
+ggsave('../figures/Fig3b_tort_model.pdf', device='pdf', width = 175, height = 160, units = 'mm')
 
-# Set up plot format
-par(mfrow=c(3,3))
-par(mar=c(1.5,1.5,1.5,1.5))
-par(oma=c(5,5,0,0))
+# title(xlab="Total length (cm)",ylab='Foraging tortuosity', outer=T,
+#       cex.lab=1.7, family="")
 
-#Graphs
-
-#No1 frenatus
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'frenatus'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(fren$fit ~ sp.data[[2]]$Size,type="l")
-points(frenupr ~ sp.data[[2]]$Size,type="l",lty=2)
-points(frenlwr ~ sp.data[[2]]$Size,type="l",lty=2)
-mtext("Sc. frenatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No2 nigricauda
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'nigricauda'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(nig$fit ~ sp.data[[3]]$Size,type="l")
-points(nigupr ~ sp.data[[3]]$Size,type="l",lty=2)
-points(niglwr ~ sp.data[[3]]$Size,type="l",lty=2)
-mtext("A. nigricauda",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No3 doliatus
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'doliatus'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(dol$fit ~ sp.data[[1]]$Size,type="l")
-points(dolupr ~ sp.data[[1]]$Size,type="l",lty=2)
-points(dollwr ~ sp.data[[1]]$Size,type="l",lty=2)
-mtext("S. doliatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No4 rivulatus
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'rivulatus'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(riv$fit ~ sp.data[[4]]$Size,type="l")
-points(rivupr ~ sp.data[[4]]$Size,type="l",lty=2)
-points(rivlwr ~ sp.data[[4]]$Size,type="l",lty=2)
-mtext("Sc. rivulatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No5 scopas
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'scopas'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(sco$fit ~ sp.data[[5]]$Size,type="l")
-points(scoupr ~ sp.data[[5]]$Size,type="l",lty=2)
-points(scolwr ~ sp.data[[5]]$Size,type="l",lty=2)
-mtext("Z. scopas",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No6 vulpinus
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'vulpinis'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(vul$fit ~ sp.data[[9]]$Size,type="l")
-points(vulupr ~ sp.data[[9]]$Size,type="l",lty=2)
-points(vullwr ~ sp.data[[9]]$Size,type="l",lty=2)
-mtext("S. vulpinus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No7 spilurus
-# might be called by older synonym sordidus
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'sordidus'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(spi$fit ~ sp.data[[6]]$Size,type="l")
-points(spiupr ~ sp.data[[6]]$Size,type="l",lty=2)
-points(spilwr ~ sp.data[[6]]$Size,type="l",lty=2)
-mtext("Ch. spilurus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No8 striatus
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'striatus'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,35), ylim=c(1,100),log="y")
-points(stri$fit ~ sp.data[[7]]$Size,type="l")
-points(striupr ~ sp.data[[7]]$Size,type="l",lty=2)
-points(strilwr ~ sp.data[[7]]$Size,type="l",lty=2)
-mtext("C. striatus",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-#No9 unicornis
-plot(Tort ~ Size, data=forage.data %>% filter(Species == 'unicornis'),las=1, type="p",bty="l",pch=16, cex=0.9,
-     xlab="",ylab="",tck=0.03, xlim=c(5,60), ylim=c(1,100),log="y")
-points(uni$fit ~ sp.data[[8]]$Size,type="l")
-points(uniupr ~ sp.data[[8]]$Size,type="l",lty=2)
-points(unilwr ~ sp.data[[8]]$Size,type="l",lty=2)
-mtext("N. unicornis",side=3, line=-1,adj=0.05,cex=0.7, family="",font=3)
-
-title(xlab="Total length (cm)",ylab='Foraging tortuosity', outer=T,
-      cex.lab=1.5, family="")
 

@@ -5,7 +5,7 @@
 
 rm(list=ls(all=TRUE))
 require(tidyverse)
-require(viridis)
+require(ggbeeswarm)
 require(patchwork)
 load('areamodels_all.RData')
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -54,8 +54,6 @@ for (i in 1:5) { # calculate predictions and CIs for each univariate model
 
 # Area plot panels --------------------------------------------------------------
 
-species <- as.vector(rep('', n_distinct(forage.data$Species)))
-
 species <- c(
   'S. doliatus',
   'Sc. frenatus',
@@ -94,8 +92,8 @@ A.body <- base +
 
 A.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
-  geom_violin(data = forage.data, aes(x=A_Sp, y=Area), color = 'darkblue', size = 0.25, trim=F, fill='#9adbed') +
-  geom_jitter(data = forage.data, aes(x=A_Sp, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_violin(data = forage.data, aes(x=A_Sp, y=Area), color = 'black', size = 0.25, trim=F, fill='#FCCE2588') +
+  geom_beeswarm(data = forage.data, aes(x=A_Sp, y=Area), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[2]]$fit, Species = forage.data$A_Sp) %>% distinct(), 
              aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
   xlab('Species') + scale_x_discrete(labels=area_sp_names) +
@@ -104,7 +102,7 @@ A.sp <- base +
 A.ss <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=SS, y=Area), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=SS, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=SS, y=Area), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[3]]$fit, SS = forage.data$SS) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=SS), size=1, color = 'black') +
   xlab('Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
@@ -112,7 +110,7 @@ A.ss <- base +
 A.diet <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=Diet, y=Area), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=Diet, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=Diet, y=Area), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[4]]$fit, Diet = forage.data$Diet) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Diet), size=1, color = 'black') +
   xlab('Diet') + scale_x_discrete(labels=str_wrap(diet_names, width = 10)) +
@@ -121,7 +119,7 @@ A.diet <- base +
 A.func <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=Func, y=Area), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=Func, y=Area), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=Func, y=Area), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[5]]$fit, Func = forage.data$Func) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Func), size=1, color = 'black') +
   xlab('Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
@@ -146,7 +144,7 @@ T.body <- base +
 T.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=T_Sp, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=T_Sp, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=T_Sp, y=Tort), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[2]]$fit, Species = forage.data$T_Sp) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
   xlab('Species') + scale_x_discrete(labels=tort_sp_names) +
@@ -155,7 +153,7 @@ T.sp <- base +
 T.ss <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=SS, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=SS, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=SS, y=Tort), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[3]]$fit, SS = forage.data$SS) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=SS), size=1, color = 'black') +
   xlab('Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
@@ -163,7 +161,7 @@ T.ss <- base +
 T.diet <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=Diet, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=Diet, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=Diet, y=Tort), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[4]]$fit, Diet = forage.data$Diet) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Diet), size=1, color = 'black') +
   xlab('Diet') + scale_x_discrete(labels=str_wrap(diet_names, width = 10)) +
@@ -172,7 +170,7 @@ T.diet <- base +
 T.func <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=Func, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_jitter(data = forage.data, aes(x=Func, y=Tort), width = 0.1, size = 1, fill = 'black', alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=Func, y=Tort), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[5]]$fit, Func = forage.data$Func) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Func), size=1, color = 'black') +
   xlab('Functional group') + scale_x_discrete(labels=str_wrap(func_names, width = 10))
@@ -191,7 +189,7 @@ T.func <- base +
 univar.patch <- (A.body / A.sp / A.ss / A.diet / A.func) * scale_y_continuous(trans='log', limits = c(1,1000), breaks = c(0,1,5,10,50,100,500,1000)) * ylab(expression('Foraging area ('~m^2~')')) | 
   (T.body / T.sp / T.ss / T.diet / T.func) * scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100)) * ylab('Tortuosity')
 univar.patch
-ggsave('../figures/Fig2_univariate_areatort.pdf', device='pdf', width = 200, height = 400, units = 'mm')
+ggsave('../figures/Fig2_univariate_areatort.pdf', device='pdf', width = 200, height = 300, units = 'mm')
 
 # Earlier iteration
 # library(beanplot)
