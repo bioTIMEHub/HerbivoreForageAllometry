@@ -1,15 +1,10 @@
-# Univariate models for each response variable
-# Re-running the model selection with GLM
+
+
+# Mean-interforay distance models for every predictor structure
 # For response variable: IntFor
-#Written/updated 5/2/15
+# Updated by CC 12/05/2021
 
-## Clear anything old
-rm(list=ls(all=TRUE)) 
-
-## Import data ##
-Lizard<-read.table(file.choose(),header=T)
-
-## For Lizard (and Heron) data, there are some abbreviations
+# Some abbreviations/metadata to be aware of
 # Species= Species
 # SS = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
 # Diet = Diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
@@ -19,95 +14,146 @@ Lizard<-read.table(file.choose(),header=T)
 # Area = Foraging Area
 # Tort = Tortuosity ratio (sum of inter-foray/start-finish)
 # VarInt = Variance of inter-foray distances
+# Start_finish = straight line displacement between start and finish points
 
-Lizard$SS<-factor(Lizard$SS)
-Lizard$Func<-factor(Lizard$Func)
-Lizard$Species<-factor(Lizard$Species)
-Lizard$Diet<-factor(Lizard$Diet)
+
+## Clear anything old
+rm(list=ls(all=TRUE)) 
+require(dplyr) # for data wrangling
+require(DHARMa) # model checks
+require(MuMIn)
+
+## Import data ##
+forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+forage.data<- forage.data %>% arrange(Species, Size)
+
+# fix column data type
+forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+str(forage.data)
 
 #********************************************************************************
 
-SizeSSFunc<-glm(formula=IntFor~Size+SS+Func, family=Gamma(link="log"), data=Lizard)
+SizeSSFunc<-glm(formula=IntFor~Size+SS+Func, family=Gamma(link="log"), data=forage.data)
 summary(SizeSSFunc)
 
-SizeSSDiet<-glm(formula=IntFor~Size+SS+Diet,family=Gamma(link="log"), data=Lizard)
+SizeSSDiet<-glm(formula=IntFor~Size+SS+Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSDiet)
 
-SizeSSSpecies<-glm(formula=IntFor~Size+SS+Species,family=Gamma(link="log"), data=Lizard)
+SizeSSSpecies<-glm(formula=IntFor~Size+SS+Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSSpecies)
 
-SizeSSFuncint<-glm(formula=IntFor~Size*SS*Func,family=Gamma(link="log"), data=Lizard)
+SizeSSFuncint<-glm(formula=IntFor~Size*SS*Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSFuncint) #Too many NAs, will not use
 
-SizeSSDietint<-glm(formula=IntFor~Size*SS*Diet,family=Gamma(link="log"), data=Lizard)
+SizeSSDietint<-glm(formula=IntFor~Size*SS*Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSDietint) #Too many NAs, will not use
 
-SizeSSSpeciesint<-glm(formula=IntFor~Size*SS*Species,family=Gamma(link="log"), data=Lizard)
+SizeSSSpeciesint<-glm(formula=IntFor~Size*SS*Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSSpeciesint) #Too many NAs, will not use
 
-SizeSSFuncDiet<-glm(formula=IntFor~Size+SS+Func+Diet,family=Gamma(link="log"), data=Lizard)
+SizeSSFuncDiet<-glm(formula=IntFor~Size+SS+Func+Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSFuncDiet) # One NA
 
-SizeSS<-glm(formula=IntFor~Size+SS,family=Gamma(link="log"), data=Lizard)
+SizeSS<-glm(formula=IntFor~Size+SS,family=Gamma(link="log"), data=forage.data)
 summary(SizeSS)
 
-SizeSpecies<-glm(formula=IntFor~Size+Species,family=Gamma(link="log"), data=Lizard)
+SizeSpecies<-glm(formula=IntFor~Size+Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpecies)
 
-SizeDiet<-glm(formula=IntFor~Size+Diet,family=Gamma(link="log"), data=Lizard)
+SizeDiet<-glm(formula=IntFor~Size+Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeDiet)
 
-SizeFunc<-glm(formula=IntFor~Size+Func,family=Gamma(link="log"), data=Lizard)
+SizeFunc<-glm(formula=IntFor~Size+Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFunc)
 
-SizeSSint<-glm(formula=IntFor~Size*SS,family=Gamma(link="log"), data=Lizard)
+SizeSSint<-glm(formula=IntFor~Size*SS,family=Gamma(link="log"), data=forage.data)
 summary(SizeSSint)
 
-SizeSpeciesint<-glm(formula=IntFor~Size*Species,family=Gamma(link="log"), data=Lizard)
+SizeSpeciesint<-glm(formula=IntFor~Size*Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpeciesint)
 
-SizeDietint<-glm(formula=IntFor~Size*Diet,family=Gamma(link="log"), data=Lizard)
+SizeDietint<-glm(formula=IntFor~Size*Diet,family=Gamma(link="log"), data=forage.data)
 summary(SizeDietint)
 
-SizeFuncint<-glm(formula=IntFor~Size*Func,family=Gamma(link="log"), data=Lizard)
+SizeFuncint<-glm(formula=IntFor~Size*Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFuncint)
 
-SSSpecies<-glm(formula=IntFor~Species+SS,family=Gamma(link="log"), data=Lizard)
+SSSpecies<-glm(formula=IntFor~Species+SS,family=Gamma(link="log"), data=forage.data)
 summary(SSSpecies)
 
-SSSpeciesint<-glm(formula=IntFor~Species*SS,family=Gamma(link="log"), data=Lizard)
+SSSpeciesint<-glm(formula=IntFor~Species*SS,family=Gamma(link="log"), data=forage.data)
 summary(SSSpeciesint) #Too many NAs
 
-SSDiet<-glm(formula=IntFor~Diet+SS,family=Gamma(link="log"), data=Lizard)
+SSDiet<-glm(formula=IntFor~Diet+SS,family=Gamma(link="log"), data=forage.data)
 summary(SSDiet)
 
-SSDietint<-glm(formula=IntFor~Diet*SS,family=Gamma(link="log"), data=Lizard)
+SSDietint<-glm(formula=IntFor~Diet*SS,family=Gamma(link="log"), data=forage.data)
 summary(SSDietint) # Too many NAs
 
-SSFunc<-glm(formula=IntFor~Func+SS,family=Gamma(link="log"), data=Lizard)
+SSFunc<-glm(formula=IntFor~Func+SS,family=Gamma(link="log"), data=forage.data)
 summary(SSFunc)
 
-SSFuncint<-glm(formula=IntFor~Func*SS, family=Gamma(link="log"),data=Lizard)
+SSFuncint<-glm(formula=IntFor~Func*SS, family=Gamma(link="log"),data=forage.data)
 summary(SSFuncint) # NAs present
 
-SSm<-glm(formula=IntFor~SS,family=Gamma(link="log"), data=Lizard)
+SSm<-glm(formula=IntFor~SS,family=Gamma(link="log"), data=forage.data)
 summary(SSm)
 
-Speciesm<-glm(formula=IntFor~Species,family=Gamma(link="log"), data=Lizard)
+Speciesm<-glm(formula=IntFor~Species,family=Gamma(link="log"), data=forage.data)
 summary(Speciesm)
 
-Funcm<-glm(formula=IntFor~Func,family=Gamma(link="log"), data=Lizard)
+Funcm<-glm(formula=IntFor~Func,family=Gamma(link="log"), data=forage.data)
 summary(Funcm)
 
-Dietm<-glm(formula=IntFor~Diet, family=Gamma(link="log"),data=Lizard)
+Dietm<-glm(formula=IntFor~Diet, family=Gamma(link="log"),data=forage.data)
 summary(Dietm)
 
-Sizem<-glm(formula=IntFor~Size, family=Gamma(link="log"),data=Lizard)
+Sizem<-glm(formula=IntFor~Size, family=Gamma(link="log"),data=forage.data)
 summary(Sizem)
 #**************************************************************************
 #19 models without NAs
 
-AICall<-AIC(SSDiet,SSFunc, SSSpecies, SizeDiet, SizeDietint,SizeFunc,
-            SizeFuncint, SizeSS, SizeSSDiet, SizeSSFunc, SizeSSSpecies, SizeSSint,
-            SizeSpecies, SizeSpeciesint,SSm, Speciesm, Funcm, Dietm, Sizem)
+# Model comparison + selection --------------------------------------------
+
+model_list <- c('SizeSSFunc',
+                'SizeSSDiet', 
+                'SizeSSSpecies', 
+                'SizeSS', 'SizeSpecies', 
+                'SizeDiet', 'SizeFunc',
+                'SizeSSint', 'SizeSpeciesint',
+                'SizeDietint','SizeFuncint',
+                'SSSpecies','SSDiet',
+                'SSFunc','SSm', 
+                'Speciesm','Funcm',
+                'Dietm','Sizem')
+
+intfor_compare <- AICc(SizeSSFunc,
+                      SizeSSDiet, 
+                      SizeSSSpecies, 
+                      SizeSS, SizeSpecies, 
+                      SizeDiet, SizeFunc,
+                      SizeSSint, SizeSpeciesint,
+                      SizeDietint,SizeFuncint,
+                      SSSpecies,SSDiet,
+                      SSFunc,SSm, 
+                      Speciesm,Funcm,
+                      Dietm,Sizem)
+intfor_compare$AICc <- intfor_compare$AICc %>% round(., 3)
+
+# also by residual deviance
+intfor_compare$ResDev <- sapply(mget(model_list), deviance)
+intfor_compare$ResDev <- sapply(intfor_compare$ResDev, round, 3)
+intfor_compare <- intfor_compare %>% arrange(AICc)
+
+# calculate dAICc
+intfor_compare$dAIC <- rep('', nrow(intfor_compare))
+for (i in 2:nrow(intfor_compare)) { # calculate AIC difference after ranking
+  intfor_compare$dAIC[i] <- with(intfor_compare, AICc[i]-AICc[1])
+}
+
+intfor_compare$dAIC <- intfor_compare$dAIC %>% as.numeric() %>% round(., 3)
+
+write.csv(intfor_compare, 'analysis_outputs/intfor_selectiontable.csv') # model comparison output
+write.csv(summary(SizeSpecies)$coefficients, 'analysis_outputs/intfor_sizespecies.csv') # model parameter estimates output
+
 
