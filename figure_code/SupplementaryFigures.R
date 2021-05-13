@@ -20,7 +20,7 @@ species <- c(
   'S. doliatus',
   'A. nigricauda', 
   'Sc. frenatus', 
-  'Ch. spilurus', # updated taxonomy split Sc. sordidus into two species
+  'Ch. spilurus', # updated taxonomy split Ch. sordidus into two species
   'N. unicornis',
   'C. striatus',
   'S. vulpinus',
