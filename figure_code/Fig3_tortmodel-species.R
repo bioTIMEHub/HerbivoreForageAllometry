@@ -11,7 +11,6 @@ rm(list=ls(all=TRUE))
 require(tidyverse)
 require(patchwork)
 require(scales)
-require(viridisLite)
 
 # make sure we load data
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -36,6 +35,21 @@ tort.model <- glm(data=forage.data, formula=Tort ~ Size + Species, family = Gamm
 
 #Establish CIs
 critval <- 1.96 ## approx 95% CI
+
+# create a name object to link the sp codes with their proper spelling
+species <- c(
+  'S. doliatus',
+  'Sc. frenatus',
+  'A. nigricauda', 
+  'Sc. rivulatus', 
+  'Z. scopas', 
+  'Ch. spilurus',
+  'C. striatus',
+  'N. unicornis',
+  'S. vulpinus'
+)
+
+names(species) <- unique(forage.data$Species)
 
 
 # Create new data for predictions -----------------------------------------
@@ -66,30 +80,16 @@ for (i in 1:9) {
 
 part.data <- forage.data %>% mutate(Size = mean(Size)) %>% select(Species, Size)
 pred.part <- predict(tort.model, type=c("response"), se.fit=TRUE,
-                     newdata=)
+                     newdata=part.data)
 # data frame of predictions, confidence intervals, and variables
 partials <- data.frame(upper = pred.part$fit + (critval * pred.part$se.fit), 
                       lower = pred.part$fit - (critval * pred.part$se.fit),
                       pred = pred.part$fit) %>% bind_cols(., part.data) %>% distinct()
 # order by descending 
-tort_order <- c('scopas', 'doliatus', 'striatus', 'frenatus', 'nigricauda', 'sordidus', 'rivulatus', 'unicornis', 'vulpinis')
+tort_order <- partials %>% arrange(desc(pred)) %>% select(Species) %>% as_vector() %>% as.character.factor()
 partials$Species <- factor(partials$Species, levels=tort_order)
 
 # Panel loop --------------------------------------------------------------
-
-species <- c(
-  'S. doliatus',
-  'Sc. frenatus',
-  'A. nigricauda', 
-  'Sc. rivulatus', 
-  'Z. scopas', 
-  'Ch. spilurus',
-  'C. striatus',
-  'N. unicornis',
-  'S. vulpinus'
-)
-
-names(species) <- unique(forage.data$Species)
 
 # Base R option
 # par(mfrow=c(3,3))
@@ -102,16 +102,14 @@ pal.a <- viridis(9, option='C', begin=0.1, end=0.9, alpha=0.3)
 # the partial regression for species
 all.panel <- ggplot(data = partials) + 
   geom_linerange(aes(x=Species, ymin=lower, ymax=upper), color = 'grey30', size=0.5) +
-  geom_point(aes(x=Species, y=pred, fill=Species), color='grey30', shape=21, size=4.5) +
-  scale_fill_viridis(option='C', begin=0.1, end=0.9, discrete=T) +
-  guides(fill=F) +
-  theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
-  scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0.5,20), breaks = c(1,5,10,20)) +
+  geom_point(aes(x=Species, y=pred), fill='grey50', shape=21, size=4.5) +
+  theme_classic(base_size = 12, base_family = 'Helvetica') +
+  scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0.5,20), breaks = c(1,2,5,10,20)) +
   scale_x_discrete(labels=str_replace_all(tort_order, species)) +
   labs(x=NULL, y='Tortuosity') +
   theme(axis.text.x=element_text(angle=30, hjust = 1, face = 'italic'))
 all.panel
-ggsave('../figures/Fig3a_tort_sp.pdf', device='pdf', width = 140, height = 55, units = 'mm')
+ggsave(plot=all.panel, '../figures/Fig3b_tort_sp.pdf', device='pdf', width = 140, height = 50, units = 'mm')
 
 # empty list to input plot objects into
 panel <- as.list(rep('', 9))
@@ -121,9 +119,9 @@ panel[[i]] <- ggplot() +
     geom_point(data = forage.data %>% filter(!Species == tort_order[i]),
                aes(y=Tort, x=Size), shape=21, fill='transparent', color='grey90', size=0.9) +
     geom_ribbon(data = ci[[tort_order[i]]] %>% bind_cols(., Size = sp.data[[tort_order[i]]]$Size), aes(ymax=upper, ymin=lower, x=Size), 
-                fill = pal.a[i], color = 'grey30', linetype='dashed', size=0.7) +
+                fill='transparent', color = 'grey30', linetype='dashed', size=0.7) +
     geom_line(data = bind_cols(Fit = pred[[tort_order[i]]]$fit, Size = sp.data[[tort_order[i]]]$Size), aes(x=Size, y=Fit), color = 'black') +
-    geom_point(data = forage.data %>% filter(Species == tort_order[i]), aes(y=Tort, x=Size), color='black', shape=21, fill=pal[i], size=1.7) +
+    geom_point(data = forage.data %>% filter(Species == tort_order[i]), aes(y=Tort, x=Size), color='black', size=1.7) +
     annotate("text", label = species[tort_order[i]], x = 7, y = 100, fontface=3, hjust=0) +
     theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
     scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,100), breaks = c(1,5,10,20,50,100))
@@ -146,7 +144,7 @@ for (i in c(1:6)) {
 }
 
 (panel[[1]] + panel[[2]] + panel[[3]] + panel[[4]] + panel[[5]] + panel[[6]] + panel[[7]] + panel[[8]] + panel[[9]])
-ggsave('../figures/Fig3b_tort_model.pdf', device='pdf', width = 175, height = 160, units = 'mm')
+ggsave('../figures/Fig3a_tort_model.pdf', device='pdf', width = 175, height = 160, units = 'mm')
 
 # title(xlab="Total length (cm)",ylab='Foraging tortuosity', outer=T,
 #       cex.lab=1.7, family="")

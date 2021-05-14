@@ -6,6 +6,7 @@
 rm(list=ls(all=TRUE)) 
 require(tidyverse)
 require(patchwork)
+require(scales)
 
 # make sure we load data
 forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
@@ -19,6 +20,7 @@ forage.data$Species <- factor(forage.data$Species,
 # Proper species label object
 sp_names <- c("A. nigricauda", "C. striatus", "N. unicornis", 
               "Z. scopas","Ch. spilurus", "Sc. frenatus", "Sc. rivulatus", "S. doliatus", "S. vulpinus")
+names(sp_names) <- levels(forage.data$Species)
 
 # load models
 int.model <- glm(formula = IntFor ~ Size + Species, family=Gamma(link="log"), data=forage.data)
@@ -27,22 +29,25 @@ var.model <- glm(formula = VarInt ~ Size + Species, family=Gamma(link="log"), da
 #Establish CIs
 critval <- 1.96 ## approx 95% CI
 
-# Create new data for predictions -----------------------------------------
+# Generate predictions -----------------------------------------
 
 sp.data <- as.list(rep('', 9))
-int.pred <- as.list(rep('', 9))
-int.ci <- as.list(rep('', 9))
+int.pred <- as.list(rep('', 9)) # empty list for interforay predictions
+int.ci <- as.list(rep('', 9)) # empty list for interforay confidence intervals
 
+# for variance in interforay
 var.pred <- as.list(rep('', 9))
 var.ci <- as.list(rep('', 9))
 
+# match sp names with each list item for indexing later
 names(sp.data) <- levels(forage.data$Species)
 names(int.pred) <- levels(forage.data$Species)
 names(int.ci) <- levels(forage.data$Species)
 names(var.pred) <- levels(forage.data$Species)
 names(var.ci) <- levels(forage.data$Species)
 
-
+# generate predictions for each species' "new data"
+# because each species has a different size range
 for (i in 1:9) {
    sp.data[[i]] <- data.frame(
       Species = rep(levels(forage.data$Species)[i], 100), 
@@ -59,6 +64,38 @@ for (i in 1:9) {
                              lower = var.pred[[i]]$fit - (critval * var.pred[[i]]$se.fit))
 }
 
+
+# Partial predictions (species) -------------------------------------------
+
+# predictions for species if body size was held at the mean
+
+part.data <- forage.data %>% mutate(Size = mean(Size)) %>% select(Species, Size)
+pred.part <- predict(int.model, type=c("response"), se.fit=TRUE,
+                     newdata=part.data)
+# data frame of predictions, confidence intervals, and variables
+partials <- data.frame(upper = pred.part$fit + (critval * pred.part$se.fit), 
+                       lower = pred.part$fit - (critval * pred.part$se.fit),
+                       pred = pred.part$fit) %>% bind_cols(., part.data) %>% distinct()
+# order by descending 
+int_order <- partials %>% arrange(desc(pred)) %>% select(Species) %>% as_vector() %>% as.character.factor()
+partials$Species <- factor(partials$Species, levels=int_order)
+
+
+# Partial predictions panel -----------------------------------------------
+
+# the partial regression for species
+all.panel <- ggplot(data = partials) + 
+   geom_linerange(aes(x=Species, ymin=lower, ymax=upper), color = 'grey30', size=0.5) +
+   geom_point(aes(x=Species, y=pred), fill='grey50', shape=21, size=4.5) +
+   guides(fill=F) +
+   theme_classic(base_size = 12, base_family = 'Helvetica') + 
+   labs(x=NULL, y='Mean inter-foray distance (m)') +
+   scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(1,7.5), breaks = c(1,2,5,7)) +
+   scale_x_discrete(labels=str_replace_all(int_order, sp_names)) +
+   theme(axis.text.x=element_text(angle=30, hjust = 1, face = 'italic'))
+all.panel
+ggsave('../figures/Fig4a_intfor_sp.eps', device='eps', width = 140, height = 50, units = 'mm')
+
 # Mean inter-foray panel loop --------------------------------------------------------------
 
 # Base R option
@@ -71,15 +108,15 @@ int.panel <- as.list(rep('', 9))
 
 for (i in 1:9) {
    int.panel[[i]] <- ggplot() +
-      geom_point(data = forage.data %>% filter(!Species == levels(forage.data$Species)[i]),
+      geom_point(data = forage.data %>% filter(!Species == int_order[i]),
                  aes(y=IntFor, x=Size), shape=21, fill='transparent', color='grey90', size=0.9) +
-      geom_ribbon(data = int.ci[[i]] %>% bind_cols(., Size = sp.data[[i]]$Size),
+      geom_ribbon(data = int.ci[[int_order[i]]] %>% bind_cols(., Size = sp.data[[int_order[i]]]$Size),
                   aes(ymax=upper, ymin=lower, x=Size), 
                   fill = 'transparent', color = 'black', linetype='dashed', size=0.5) +
-      geom_line(data = bind_cols(Fit = int.pred[[i]]$fit, Size = sp.data[[i]]$Size),
+      geom_line(data = bind_cols(Fit = int.pred[[int_order[i]]]$fit, Size = sp.data[[int_order[i]]]$Size),
                 aes(x=Size, y=Fit), color = 'black') +
-      geom_point(data = forage.data %>% filter(Species == levels(forage.data$Species)[i]), aes(y=IntFor, x=Size), color='black', size=1.7) +
-      annotate("text", label = sp_names[i], x = 7, y = 12, fontface=3, hjust=0) +
+      geom_point(data = forage.data %>% filter(Species == int_order[i]), aes(y=IntFor, x=Size), color='black', size=1.7) +
+      annotate("text", label = sp_names[int_order[i]], x = 7, y = 12, fontface=3, hjust=0) +
       theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
       scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,12), breaks = c(1,2,5,10))
    
