@@ -10,11 +10,11 @@ require(tidyverse) # plotting
 require(patchwork) # multipanel
 
 ## Import data ##
-forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T)
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T)
 forage.data<- forage.data %>% arrange(Species, Size)
 
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
 species <- c(
   'S. doliatus',
   'Sc. frenatus',

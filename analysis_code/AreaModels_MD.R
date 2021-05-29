@@ -13,36 +13,36 @@ require(performance)
 require(MuMIn)
 
 # make sure we load data
-forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
 
 #********************************************************************************
 
-SizeSSFunc<-glm(formula=Area~Size+SS+Func, family=Gamma(link="log"), data=forage.data)
-summary(SizeSSFunc) 
+SizeSGFunc<-glm(formula=Area~Size+SG+Func, family=Gamma(link="log"), data=forage.data)
+summary(SizeSGFunc) 
 
-SizeSSDiet<-glm(formula=Area~Size+SS+Diet,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSDiet)
+SizeSGDiet<-glm(formula=Area~Size+SG+Diet,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGDiet)
 
-SizeSSSpecies<-glm(formula=Area~Size+SS+Species,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSSpecies)
+SizeSGSpecies<-glm(formula=Area~Size+SG+Species,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGSpecies)
 
-SizeSSFuncint<-glm(formula=Area~Size*SS*Func,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSFuncint) #NAs present
+SizeSGFuncint<-glm(formula=Area~Size*SG*Func,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGFuncint) #NAs present
 
-SizeSSDietint<-glm(formula=Area~Size*SS*Diet,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSDietint) #NAs present
+SizeSGDietint<-glm(formula=Area~Size*SG*Diet,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGDietint) #NAs present
 
-SizeSSSpeciesint<-glm(formula=Area~Size*SS*Species,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSSpeciesint) #NAs present
+SizeSGSpeciesint<-glm(formula=Area~Size*SG*Species,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGSpeciesint) #NAs present
 
-SizeSSFuncDiet<-glm(formula=Area~Size+SS+Func+Diet,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSFuncDiet) # One NA
+SizeSGFuncDiet<-glm(formula=Area~Size+SG+Func+Diet,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGFuncDiet) # One NA
 
-SizeSS<-glm(formula=Area~Size+SS,family=Gamma(link="log"), data=forage.data)
-summary(SizeSS)
+SizeSG<-glm(formula=Area~Size+SG,family=Gamma(link="log"), data=forage.data)
+summary(SizeSG)
 
 SizeSpecies<-glm(formula=Area~Size+Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpecies)
@@ -53,8 +53,8 @@ summary(SizeDiet)
 SizeFunc<-glm(formula=Area~Size+Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFunc)
 
-SizeSSint<-glm(formula=Area~Size*SS,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSint)
+SizeSGint<-glm(formula=Area~Size*SG,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGint)
 
 SizeSpeciesint<-glm(formula=Area~Size*Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpeciesint)
@@ -65,26 +65,26 @@ summary(SizeDietint)
 SizeFuncint<-glm(formula=Area~Size*Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFuncint)
 
-SSSpecies<-glm(formula=Area~Species+SS,family=Gamma(link="log"), data=forage.data)
-summary(SSSpecies)
+SGSpecies<-glm(formula=Area~Species+SG,family=Gamma(link="log"), data=forage.data)
+summary(SGSpecies)
 
-SSSpeciesint<-glm(formula=Area~Species*SS,family=Gamma(link="log"), data=forage.data)
-summary(SSSpeciesint) #Too many NAs
+SGSpeciesint<-glm(formula=Area~Species*SG,family=Gamma(link="log"), data=forage.data)
+summary(SGSpeciesint) #Too many NAs
 
-SSDiet<-glm(formula=Area~Diet+SS,family=Gamma(link="log"), data=forage.data)
-summary(SSDiet)
+SGDiet<-glm(formula=Area~Diet+SG,family=Gamma(link="log"), data=forage.data)
+summary(SGDiet)
 
-SSDietint<-glm(formula=Area~Diet*SS,family=Gamma(link="log"), data=forage.data)
-summary(SSDietint) # Too many NAs
+SGDietint<-glm(formula=Area~Diet*SG,family=Gamma(link="log"), data=forage.data)
+summary(SGDietint) # Too many NAs
 
-SSFunc<-glm(formula=Area~Func+SS,family=Gamma(link="log"), data=forage.data)
-summary(SSFunc) 
+SGFunc<-glm(formula=Area~Func+SG,family=Gamma(link="log"), data=forage.data)
+summary(SGFunc) 
 
-SSFuncint<-glm(formula=Area~Func*SS, family=Gamma(link="log"),data=forage.data)
-summary(SSFuncint) # NAs present
+SGFuncint<-glm(formula=Area~Func*SG, family=Gamma(link="log"),data=forage.data)
+summary(SGFuncint) # NAs present
 
-SSm<-glm(formula=Area~SS,family=Gamma(link="log"), data=forage.data)
-summary(SSm)
+SGm<-glm(formula=Area~SG,family=Gamma(link="log"), data=forage.data)
+summary(SGm)
 
 Speciesm<-glm(formula=Area~Species,family=Gamma(link="log"), data=forage.data)
 summary(Speciesm)
@@ -100,15 +100,15 @@ summary(Sizem)
 #**************************************************************************
 #19 models without NAs
 
-model_list <- c('SSDiet', 'SSSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
-                'SizeFuncint', 'SizeSS', 'SizeSSDiet', 'SizeSSSpecies', 'SizeSSint',
-                'SizeSpecies', 'SizeSpeciesint','SSm', 'Speciesm', 'Funcm', 'Dietm', 'SSFunc',
-                'SizeSSFunc', 'Sizem') # list of candidates without NAs for comparison
+model_list <- c('SGDiet', 'SGSpecies', 'SizeDiet', 'SizeDietint','SizeFunc',
+                'SizeFuncint', 'SizeSG', 'SizeSGDiet', 'SizeSGSpecies', 'SizeSGint',
+                'SizeSpecies', 'SizeSpeciesint','SGm', 'Speciesm', 'Funcm', 'Dietm', 'SGFunc',
+                'SizeSGFunc', 'Sizem') # list of candidates without NAs for comparison
 
-area_model_comparison <- AICc(SSDiet, SSSpecies, SizeDiet, SizeDietint,SizeFunc,
-                              SizeFuncint, SizeSS, SizeSSDiet, SizeSSSpecies, SizeSSint,
-                              SizeSpecies, SizeSpeciesint,SSm, Speciesm, Funcm, Dietm, SSFunc,
-                              SizeSSFunc, Sizem)
+area_model_comparison <- AICc(SGDiet, SGSpecies, SizeDiet, SizeDietint,SizeFunc,
+                              SizeFuncint, SizeSG, SizeSGDiet, SizeSGSpecies, SizeSGint,
+                              SizeSpecies, SizeSpeciesint,SGm, Speciesm, Funcm, Dietm, SGFunc,
+                              SizeSGFunc, Sizem)
 area_model_comparison$AICc <- area_model_comparison$AICc %>% round(., 3)
 
 # also by residual deviance

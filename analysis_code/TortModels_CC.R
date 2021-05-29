@@ -15,12 +15,12 @@ require(DHARMa) # model checks
 require(MuMIn)
 
 ## Import data ##
-forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 
 # Some abbreviations/metadata to be aware of
 # Species= Species
-# SS = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
+# SG = Social grouping during feeding (single=1, pair=2, single species chool=3, mixed-species school =4)
 # Diet = Diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
 # Func = Functional group (excavator=1, scraper=2, grazer/detritivore=3, browser=4)
 # Size = Total length (cm)
@@ -31,7 +31,7 @@ forage.data<- forage.data %>% arrange(Species, Size)
 # Start_finish = straight line displacement between start and finish points
 
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
 str(forage.data)
 
 
@@ -39,21 +39,21 @@ str(forage.data)
 
 # fit all possible candidates
 
-SizeSSFunc<-glm(formula=Tort~Size+SS+Func, family=Gamma(link="log"), data=forage.data)
+SizeSGFunc<-glm(formula=Tort~Size+SG+Func, family=Gamma(link="log"), data=forage.data)
 
-SizeSSDiet<-glm(formula=Tort~Size+SS+Diet,family=Gamma(link="log"), data=forage.data)
+SizeSGDiet<-glm(formula=Tort~Size+SG+Diet,family=Gamma(link="log"), data=forage.data)
 
-SizeSSSpecies<-glm(formula=Tort~Size+SS+Species,family=Gamma(link="log"), data=forage.data)
+SizeSGSpecies<-glm(formula=Tort~Size+SG+Species,family=Gamma(link="log"), data=forage.data)
 
-SizeSSFuncint<-glm(formula=Tort~Size*SS*Func,family=Gamma(link="log"), data=forage.data)
+SizeSGFuncint<-glm(formula=Tort~Size*SG*Func,family=Gamma(link="log"), data=forage.data)
 
-SizeSSDietint<-glm(formula=Tort~Size*SS*Diet,family=Gamma(link="log"), data=forage.data)
+SizeSGDietint<-glm(formula=Tort~Size*SG*Diet,family=Gamma(link="log"), data=forage.data)
 
-SizeSSSpeciesint<-glm(formula=Tort~Size*SS*Species,family=Gamma(link="log"), data=forage.data)
+SizeSGSpeciesint<-glm(formula=Tort~Size*SG*Species,family=Gamma(link="log"), data=forage.data)
 
-SizeSSFuncDiet<-glm(formula=Tort~Size+SS+Func+Diet,family=Gamma(link="log"), data=forage.data)
+SizeSGFuncDiet<-glm(formula=Tort~Size+SG+Func+Diet,family=Gamma(link="log"), data=forage.data)
 
-SizeSS<-glm(formula=Tort~Size+SS,family=Gamma(link="log"), data=forage.data)
+SizeSG<-glm(formula=Tort~Size+SG,family=Gamma(link="log"), data=forage.data)
 
 SizeSpecies<-glm(formula=Tort~Size+Species,family=Gamma(link="log"), data=forage.data)
 
@@ -61,7 +61,7 @@ SizeDiet<-glm(formula=Tort~Size+Diet,family=Gamma(link="log"), data=forage.data)
 
 SizeFunc<-glm(formula=Tort~Size+Func,family=Gamma(link="log"), data=forage.data)
 
-SizeSSint<-glm(formula=Tort~Size*SS,family=Gamma(link="log"), data=forage.data)
+SizeSGint<-glm(formula=Tort~Size*SG,family=Gamma(link="log"), data=forage.data)
 
 SizeSpeciesint<-glm(formula=Tort~Size*Species, family=Gamma(link='log'), data=forage.data)
 
@@ -69,19 +69,19 @@ SizeDietint<-glm(formula=Tort~Size*Diet,family=Gamma(link="log"), data=forage.da
 
 SizeFuncint<-glm(formula=Tort~Size*Func,family=Gamma(link="log"), data=forage.data)
 
-SSSpecies<-glm(formula=Tort~Species+SS,family=Gamma(link="log"), data=forage.data)
+SGSpecies<-glm(formula=Tort~Species+SG,family=Gamma(link="log"), data=forage.data)
 
-SSSpeciesint<-glm(formula=Tort~Species*SS,family=Gamma(link="log"), data=forage.data)
+SGSpeciesint<-glm(formula=Tort~Species*SG,family=Gamma(link="log"), data=forage.data)
 
-SSDiet<-glm(formula=Tort~Diet+SS,family=Gamma(link="log"), data=forage.data)
+SGDiet<-glm(formula=Tort~Diet+SG,family=Gamma(link="log"), data=forage.data)
 
-SSDietint<-glm(formula=Tort~Diet*SS,family=Gamma(link="log"), data=forage.data)
+SGDietint<-glm(formula=Tort~Diet*SG,family=Gamma(link="log"), data=forage.data)
 
-SSFunc<-glm(formula=Tort~Func+SS,family=Gamma(link="log"), data=forage.data)
+SGFunc<-glm(formula=Tort~Func+SG,family=Gamma(link="log"), data=forage.data)
 
-SSFuncint<-glm(formula=Tort~Func*SS, family=Gamma(link="log"),data=forage.data)
+SGFuncint<-glm(formula=Tort~Func*SG, family=Gamma(link="log"),data=forage.data)
 
-SSm<-glm(formula=Tort~SS,family=Gamma(link="log"), data=forage.data)
+SGm<-glm(formula=Tort~SG,family=Gamma(link="log"), data=forage.data)
 
 Speciesm<-glm(formula=Tort~Species,family=Gamma(link="log"), data=forage.data)
 
@@ -91,73 +91,73 @@ Dietm<-glm(formula=Tort~Diet, family=Gamma(link="log"),data=forage.data)
 
 Sizem<-glm(formula=Tort~Size, family=Gamma(link="log"),data=forage.data)
 
-summary(SizeSSDiet)
-summary(SizeSSSpecies)
-summary(SizeSSFuncint) # NAs
-summary(SizeSSDietint) # NAs
-summary(SizeSSSpeciesint) # NAs
-summary(SizeSSFuncDiet) # NAs
-summary(SizeSS)
+summary(SizeSGDiet)
+summary(SizeSGSpecies)
+summary(SizeSGFuncint) # NAs
+summary(SizeSGDietint) # NAs
+summary(SizeSGSpeciesint) # NAs
+summary(SizeSGFuncDiet) # NAs
+summary(SizeSG)
 summary(SizeSpecies) 
 summary(SizeDiet)
 summary(SizeFunc)
-summary(SizeSSint) # did not converge
+summary(SizeSGint) # did not converge
 summary(SizeSpeciesint)
 summary(SizeDietint)
 summary(SizeFuncint)
-summary(SSSpecies)
-summary(SSSpeciesint) # NAs
-summary(SSDiet)
-summary(SSDietint) # NAs
-summary(SSFunc) 
-summary(SSFuncint) # NAs
-summary(SSm)
+summary(SGSpecies)
+summary(SGSpeciesint) # NAs
+summary(SGDiet)
+summary(SGDietint) # NAs
+summary(SGFunc) 
+summary(SGFuncint) # NAs
+summary(SGm)
 summary(Speciesm)
 summary(Funcm)
 summary(Dietm)
-summary(SizeSSFunc) 
+summary(SizeSGFunc) 
 summary(Sizem)
 #7 models without NAs
 
 
 # Model comparison + selection --------------------------------------------
 
-model_list <- c('SizeSSDiet',
-                'SizeSSSpecies',
-                'SizeSS',
+model_list <- c('SizeSGDiet',
+                'SizeSGSpecies',
+                'SizeSG',
                 'SizeSpecies', 
                 'SizeDiet',
                 'SizeFunc',
                 'SizeSpeciesint',
                 'SizeDietint',
                 'SizeFuncint',
-                'SSSpecies',
-                'SSDiet',
-                'SSFunc', 
-                'SSm',
+                'SGSpecies',
+                'SGDiet',
+                'SGFunc', 
+                'SGm',
                 'Speciesm',
                 'Funcm',
                 'Dietm',
-                'SizeSSFunc', 
+                'SizeSGFunc', 
                 'Sizem')
 
-tort_model_comparison <- AICc(SizeSSDiet,
-                              SizeSSSpecies,
-                              SizeSS,
+tort_model_comparison <- AICc(SizeSGDiet,
+                              SizeSGSpecies,
+                              SizeSG,
                               SizeSpecies, 
                               SizeDiet,
                               SizeFunc,
                               SizeSpeciesint,
                               SizeDietint,
                               SizeFuncint,
-                              SSSpecies,
-                              SSDiet,
-                              SSFunc, 
-                              SSm,
+                              SGSpecies,
+                              SGDiet,
+                              SGFunc, 
+                              SGm,
                               Speciesm,
                               Funcm,
                               Dietm,
-                              SizeSSFunc, 
+                              SizeSGFunc, 
                               Sizem)
 tort_model_comparison$AICc <- tort_model_comparison$AICc %>% round(., 3)
 

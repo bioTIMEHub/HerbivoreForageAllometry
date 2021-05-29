@@ -9,10 +9,10 @@ require(patchwork)
 require(scales)
 
 # make sure we load data
-forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
 
 # order alphabetically
 forage.data$Species <- factor(forage.data$Species, 

@@ -7,16 +7,16 @@ rm(list=ls(all=TRUE))
 require(tidyverse)
 require(ggbeeswarm)
 require(patchwork)
-load('areamodels_all.RData')
-forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+load('./analysis_outputs/areamodels_all.RData')
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
 
 # Some abbreviations/metadata to be aware of
 # Species= Species
-# SS = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
+# SG = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
 # Diet = Diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
 # Func = Functional group (excavator=1, scraper=2, grazer/detritivore=3, browser=4)
 # Size = Total length (cm)
@@ -34,7 +34,7 @@ critval <- 1.96 ## approx 95% CI
 # Calculate CI for each univariate area model
 area.pred <- list(rep('', 5)) # make an empty list for inputting predictions for each univar area model
 area.ci <- list(rep('', 5))
-univars <- c('Sizem', 'Speciesm', 'SSm', 'Dietm', 'Funcm') # vector of univariate models to loop
+univars <- c('Sizem', 'Speciesm', 'SGm', 'Dietm', 'Funcm') # vector of univariate models to loop
 for (i in 1:5) { # calculate predictions and CIs for each univariate model
   area.pred[[i]]<-predict.glm(get(univars[i]), type=c("response"),se.fit=TRUE)
   area.ci[[i]] <- data.frame(upper = area.pred[[i]]$fit + (critval * area.pred[[i]]$se.fit), 
@@ -42,7 +42,7 @@ for (i in 1:5) { # calculate predictions and CIs for each univariate model
 }
 
 # again for tortuosity
-load('tortmodels_all.RData') # load tortuosity model data
+load('./analysis_outputs/tortmodels_all.RData') # load tortuosity model data
 tort.pred <- list(rep('', 5)) # make an empty list for inputting predictions for each univar area model
 tort.ci <- list(rep('', 5))
 for (i in 1:5) { # calculate predictions and CIs for each univariate model
@@ -101,10 +101,10 @@ A.sp <- base +
 
 A.ss <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
-  geom_violin(data = forage.data, aes(x=SS, y=Area), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_beeswarm(data = forage.data, aes(x=SS, y=Area), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
-  geom_errorbar(data = bind_cols(Fit = area.pred[[3]]$fit, SS = forage.data$SS) %>% distinct(), 
-                aes(ymax=Fit, ymin=Fit, x=SS), size=1, color = 'black') +
+  geom_violin(data = forage.data, aes(x=SG, y=Area), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
+  geom_beeswarm(data = forage.data, aes(x=SG, y=Area), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
+  geom_errorbar(data = bind_cols(Fit = area.pred[[3]]$fit, SG = forage.data$SG) %>% distinct(), 
+                aes(ymax=Fit, ymin=Fit, x=SG), size=1, color = 'black') +
   xlab('Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
 
 A.diet <- base +
@@ -152,10 +152,10 @@ T.sp <- base +
 
 T.ss <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
-  geom_violin(data = forage.data, aes(x=SS, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_beeswarm(data = forage.data, aes(x=SS, y=Tort), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
-  geom_errorbar(data = bind_cols(Fit = tort.pred[[3]]$fit, SS = forage.data$SS) %>% distinct(), 
-                aes(ymax=Fit, ymin=Fit, x=SS), size=1, color = 'black') +
+  geom_violin(data = forage.data, aes(x=SG, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
+  geom_beeswarm(data = forage.data, aes(x=SG, y=Tort), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
+  geom_errorbar(data = bind_cols(Fit = tort.pred[[3]]$fit, SG = forage.data$SG) %>% distinct(), 
+                aes(ymax=Fit, ymin=Fit, x=SG), size=1, color = 'black') +
   xlab('Social structure') + scale_x_discrete(labels=str_wrap(ss_names, width = 10))
 
 T.diet <- base +
@@ -201,7 +201,7 @@ ggsave('../figures/Fig2_univariate_areatort.pdf', device='pdf', width = 200, hei
 # points(sizemodepred$fit ~ forage.data$Size,type="l")
 # points(sizeupr ~ forage.data$Size,type="l",lty=2)
 # points(sizewr ~ forage.data$Size,type="l",lty=2)
-# beanplot(forage.data$Area ~ forage.data$SS,bty="n",las=1,xaxt="n")
+# beanplot(forage.data$Area ~ forage.data$SG,bty="n",las=1,xaxt="n")
 # beanplot(forage.data$Area ~ forage.data$Func,bty="n",las=1,xaxt="n")
 # beanplot(forage.data$Area ~ sort(levels(forage.data$Species)),bty="n",las=1)
 # beanplot(forage.data$Area ~ forage.data$Diet,bty="n",las=1,xaxt="n")

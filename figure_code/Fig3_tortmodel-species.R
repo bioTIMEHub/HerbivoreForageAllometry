@@ -13,17 +13,17 @@ require(patchwork)
 require(scales)
 
 # make sure we load data
-forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
 
 # model fit result from our analysis
 tort.model <- glm(data=forage.data, formula=Tort ~ Size + Species, family = Gamma(link='log'))
 
 # Some abbreviations/metadata to be aware of
 # Species= Species
-# SS = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
+# SG = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
 # Diet = Diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
 # Func = Functional group (excavator=1, scraper=2, grazer/detritivore=3, browser=4)
 # Size = Total length (cm)

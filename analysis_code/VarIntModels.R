@@ -5,7 +5,7 @@
 
 # Some abbreviations/metadata to be aware of
 # Species= Species
-# SS = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
+# SG = Social Status (single=1, pair=2, single species chool=3, mixed-species school =4)
 # Diet = Diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
 # Func = Functional group (excavator=1, scraper=2, grazer/detritivore=3, browser=4)
 # Size = Total length (cm)
@@ -23,38 +23,38 @@ require(DHARMa) # model checks
 require(MuMIn)
 
 ## Import data ##
-forage.data<-read.table('../original/src/R-data_Lizard_ellipse_Area.txt',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SS, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
 str(forage.data)
 
 #********************************************************************************
 
-SizeSSFunc<-glm(formula=VarInt~Size+SS+Func, family=Gamma(link="log"), data=forage.data)
-summary(SizeSSFunc) 
+SizeSGFunc<-glm(formula=VarInt~Size+SG+Func, family=Gamma(link="log"), data=forage.data)
+summary(SizeSGFunc) 
 
-SizeSSDiet<-glm(formula=VarInt~Size+SS+Diet,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSDiet) 
+SizeSGDiet<-glm(formula=VarInt~Size+SG+Diet,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGDiet) 
 
-SizeSSSpecies<-glm(formula=VarInt~Size+SS+Species,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSSpecies) 
+SizeSGSpecies<-glm(formula=VarInt~Size+SG+Species,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGSpecies) 
 
-SizeSSFuncint<-glm(formula=VarInt~Size*SS*Func,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSFuncint) #Too many NAs, will not use
+SizeSGFuncint<-glm(formula=VarInt~Size*SG*Func,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGFuncint) #Too many NAs, will not use
 
-SizeSSDietint<-glm(formula=VarInt~Size*SS*Diet,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSDietint) #Too many NAs, will not use
+SizeSGDietint<-glm(formula=VarInt~Size*SG*Diet,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGDietint) #Too many NAs, will not use
 
-SizeSSSpeciesint<-glm(formula=VarInt~Size*SS*Species,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSSpeciesint) #Too many NAs
+SizeSGSpeciesint<-glm(formula=VarInt~Size*SG*Species,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGSpeciesint) #Too many NAs
 
-SizeSSFuncDiet<-glm(formula=VarInt~Size+SS+Func+Diet,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSFuncDiet) #NAs present
+SizeSGFuncDiet<-glm(formula=VarInt~Size+SG+Func+Diet,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGFuncDiet) #NAs present
 
-SizeSS<-glm(formula=VarInt~Size+SS,family=Gamma(link="log"), data=forage.data)
-summary(SizeSS) 
+SizeSG<-glm(formula=VarInt~Size+SG,family=Gamma(link="log"), data=forage.data)
+summary(SizeSG) 
 
 SizeSpecies<-glm(formula=VarInt~Size+Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpecies)
@@ -65,8 +65,8 @@ summary(SizeDiet)
 SizeFunc<-glm(formula=VarInt~Size+Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFunc) 
 
-SizeSSint<-glm(formula=VarInt~Size*SS,family=Gamma(link="log"), data=forage.data)
-summary(SizeSSint) 
+SizeSGint<-glm(formula=VarInt~Size*SG,family=Gamma(link="log"), data=forage.data)
+summary(SizeSGint) 
 
 SizeSpeciesint<-glm(formula=VarInt~Size*Species,family=Gamma(link="log"), data=forage.data)
 summary(SizeSpeciesint)
@@ -77,26 +77,26 @@ summary(SizeDietint)
 SizeFuncint<-glm(formula=VarInt~Size*Func,family=Gamma(link="log"), data=forage.data)
 summary(SizeFuncint) 
 
-SSSpecies<-glm(formula=VarInt~Species+SS,family=Gamma(link="log"), data=forage.data)
-summary(SSSpecies)
+SGSpecies<-glm(formula=VarInt~Species+SG,family=Gamma(link="log"), data=forage.data)
+summary(SGSpecies)
 
-SSSpeciesint<-glm(formula=VarInt~Species*SS,family=Gamma(link="log"), data=forage.data)
-summary(SSSpeciesint) ##Too many NAs
+SGSpeciesint<-glm(formula=VarInt~Species*SG,family=Gamma(link="log"), data=forage.data)
+summary(SGSpeciesint) ##Too many NAs
 
-SSDiet<-glm(formula=VarInt~Diet+SS,family=Gamma(link="log"), data=forage.data)
-summary(SSDiet) 
+SGDiet<-glm(formula=VarInt~Diet+SG,family=Gamma(link="log"), data=forage.data)
+summary(SGDiet) 
 
-SSDietint<-glm(formula=VarInt~Diet*SS,family=Gamma(link="log"), data=forage.data)
-summary(SSDietint) # Too many NAs
+SGDietint<-glm(formula=VarInt~Diet*SG,family=Gamma(link="log"), data=forage.data)
+summary(SGDietint) # Too many NAs
 
-SSFunc<-glm(formula=VarInt~Func+SS,family=Gamma(link="log"), data=forage.data)
-summary(SSFunc) 
+SGFunc<-glm(formula=VarInt~Func+SG,family=Gamma(link="log"), data=forage.data)
+summary(SGFunc) 
 
-SSFuncint<-glm(formula=VarInt~Func*SS, family=Gamma(link="log"),data=forage.data)
-summary(SSFuncint) # NAs present
+SGFuncint<-glm(formula=VarInt~Func*SG, family=Gamma(link="log"),data=forage.data)
+summary(SGFuncint) # NAs present
 
-SSm<-glm(formula=VarInt~SS,family=Gamma(link="log"), data=forage.data)
-summary(SSm)
+SGm<-glm(formula=VarInt~SG,family=Gamma(link="log"), data=forage.data)
+summary(SGm)
 
 Speciesm<-glm(formula=VarInt~Species,family=Gamma(link="log"), data=forage.data)
 summary(Speciesm)
@@ -116,17 +116,17 @@ summary(Sizem)
 
 model_list <- ls(all.names=T, sorted=T)
 model_list <- str_remove_all(model_list,
-                              'SSFuncint|SSDietint|SSSpeciesint|SizeSSFuncDiet|SizeSSSpeciesint|SizeSSSpeciesint|SizeSSDietint|SizeSSFuncint|forage.data')
+                              'SGFuncint|SGDietint|SGSpeciesint|SizeSGFuncDiet|SizeSGSpeciesint|SizeSGSpeciesint|SizeSGDietint|SizeSGFuncint|forage.data')
 model_list <- model_list[-which(model_list == '')]
 
 varint_compare <- AICc(Dietm,Funcm,
                        SizeDiet,SizeDietint,
                        SizeFunc,SizeFuncint,
                        Sizem,SizeSpecies,SizeSpeciesint,
-                       SizeSS,SizeSSDiet,SizeSSFunc,
-                       SizeSSint,SizeSSSpecies,
-                       Speciesm,SSDiet,
-                       SSFunc,SSm,SSSpecies)
+                       SizeSG,SizeSGDiet,SizeSGFunc,
+                       SizeSGint,SizeSGSpecies,
+                       Speciesm,SGDiet,
+                       SGFunc,SGm,SGSpecies)
 varint_compare$AICc <- varint_compare$AICc %>% round(., 3)
 
 # also by residual deviance

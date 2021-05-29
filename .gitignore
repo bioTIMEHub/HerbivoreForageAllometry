@@ -29,6 +29,3 @@ vignettes/*.pdf
 # Mac temporary files
 *.DS_Store
 *._*
-
-# ignore output tables and data
-/analysis_outputs/*
