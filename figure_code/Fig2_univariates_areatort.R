@@ -8,11 +8,11 @@ require(tidyverse)
 require(ggbeeswarm)
 require(patchwork)
 load('./analysis_outputs/areamodels_all.RData')
-forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
-forage.data<- forage.data %>% arrange(Species, Size)
+forage.data <-read.table('./src/SpForagingMetrics.csv',header=T, sep=',') # path relative to repo project folder
+forage.data <- forage.data %>% arrange(Species, Size)
 
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, Phase, SG, Diet, Func), .fns = as.factor))
 
 # Some abbreviations/metadata to be aware of
 # Species= Species
@@ -34,7 +34,7 @@ critval <- 1.96 ## approx 95% CI
 # Calculate CI for each univariate area model
 area.pred <- list(rep('', 5)) # make an empty list for inputting predictions for each univar area model
 area.ci <- list(rep('', 5))
-univars <- c('Sizem', 'Speciesm', 'SGm', 'Dietm', 'Funcm') # vector of univariate models to loop
+univars <- c('Sizem', 'Speciesm', 'SSm', 'Dietm', 'Funcm') # vector of univariate models to loop
 for (i in 1:5) { # calculate predictions and CIs for each univariate model
   area.pred[[i]]<-predict.glm(get(univars[i]), type=c("response"),se.fit=TRUE)
   area.ci[[i]] <- data.frame(upper = area.pred[[i]]$fit + (critval * area.pred[[i]]$se.fit), 
@@ -93,11 +93,12 @@ A.body <- base +
 A.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=A_Sp, y=Area), color = 'black', size = 0.25, trim=F, fill='#FCCE2588') +
-  geom_beeswarm(data = forage.data, aes(x=A_Sp, y=Area), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=A_Sp, y=Area, shape=Phase), size = 1, priority = 'density', color='black', fill='black', cex = 2, alpha = 0.5) +
   geom_errorbar(data = bind_cols(Fit = area.pred[[2]]$fit, Species = forage.data$A_Sp) %>% distinct(), 
              aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
   xlab('Species') + scale_x_discrete(labels=area_sp_names) +
-  theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic'))
+  theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic')) +
+  scale_shape_manual(values=c(1,2,24), guide=NULL)
 
 A.ss <- base +
   geom_hline(aes(yintercept = mean(forage.data$Area)), linetype='dashed', alpha = 0.6, size=0.6) +
@@ -144,11 +145,12 @@ T.body <- base +
 T.sp <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
   geom_violin(data = forage.data, aes(x=T_Sp, y=Tort), fill = 'white', color = 'grey30', size = 0.25, trim=F) +
-  geom_beeswarm(data = forage.data, aes(x=T_Sp, y=Tort), size = 1, priority = 'density', cex = 2, alpha = 0.5, shape = 21) +
+  geom_beeswarm(data = forage.data, aes(x=T_Sp, y=Tort, shape=Phase), size = 1, priority = 'density', cex = 2, alpha = 0.5, color='black', fill='black') +
   geom_errorbar(data = bind_cols(Fit = tort.pred[[2]]$fit, Species = forage.data$T_Sp) %>% distinct(), 
                 aes(ymax=Fit, ymin=Fit, x=Species), size=1, color = 'black') +
   xlab('Species') + scale_x_discrete(labels=tort_sp_names) +
-  theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic'))
+  theme(axis.text.x=element_text(angle = 30, hjust = 1, face = 'italic')) +
+  scale_shape_manual(values=c(1,2,24), guide=NULL)
 
 T.ss <- base +
   geom_hline(aes(yintercept = mean(forage.data$Tort)), linetype='dashed', alpha = 0.6, size=0.6) +
@@ -189,7 +191,7 @@ T.func <- base +
 univar.patch <- (A.body / A.sp / A.ss / A.diet / A.func) * scale_y_continuous(trans='log', limits = c(1,1000), breaks = c(0,1,5,10,50,100,500,1000)) * ylab(expression('Foraging area ('~m^2~')')) | 
   (T.body / T.sp / T.ss / T.diet / T.func) * scale_y_continuous(trans='log', limits = c(1,80), breaks = c(1,5,10,20,50,100)) * ylab('Tortuosity')
 univar.patch
-ggsave('../figures/Fig2_univariate_areatort.pdf', device='pdf', width = 200, height = 300, units = 'mm')
+ggsave('../figures/Fig2_univariate_revised.pdf', device='pdf', width = 200, height = 300, units = 'mm')
 
 # Earlier iteration
 # library(beanplot)

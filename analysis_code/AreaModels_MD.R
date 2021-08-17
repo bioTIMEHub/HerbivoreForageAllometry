@@ -13,7 +13,7 @@ require(performance)
 require(MuMIn)
 
 # make sure we load data
-forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T, sep=',') # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
 forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))

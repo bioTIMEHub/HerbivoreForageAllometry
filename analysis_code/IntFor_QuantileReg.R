@@ -10,7 +10,7 @@ require(tidyverse) # plotting
 require(patchwork) # multipanel
 
 ## Import data ##
-forage.data<-read.table('./src/SpForagingMetrics.csv',header=T)
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T, sep=',')
 forage.data<- forage.data %>% arrange(Species, Size)
 
 # fix column data type

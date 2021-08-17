@@ -13,10 +13,10 @@ require(patchwork)
 require(scales)
 
 # make sure we load data
-forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T, sep=',') # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, Phase, SG, Diet, Func), .fns = as.factor))
 
 # model fit result from our analysis
 tort.model <- glm(data=forage.data, formula=Tort ~ Size + Species, family = Gamma(link='log'))
@@ -121,10 +121,11 @@ panel[[i]] <- ggplot() +
     geom_ribbon(data = ci[[tort_order[i]]] %>% bind_cols(., Size = sp.data[[tort_order[i]]]$Size), aes(ymax=upper, ymin=lower, x=Size), 
                 fill='transparent', color = 'grey30', linetype='dashed', size=0.7) +
     geom_line(data = bind_cols(Fit = pred[[tort_order[i]]]$fit, Size = sp.data[[tort_order[i]]]$Size), aes(x=Size, y=Fit), color = 'black') +
-    geom_point(data = forage.data %>% filter(Species == tort_order[i]), aes(y=Tort, x=Size), color='black', size=1.7) +
+    geom_point(data = forage.data %>% filter(Species == tort_order[i]), aes(y=Tort, x=Size, shape=Phase), color='black', fill='black', size=1.7) +
     annotate("text", label = species[tort_order[i]], x = 7, y = 100, fontface=3, hjust=0) +
     theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
-    scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,100), breaks = c(1,5,10,20,50,100))
+    scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,100), breaks = c(1,5,10,20,50,100)) +
+    scale_shape_manual(values=c(21,2,24), guide=NULL)
 
   ## Base R option
   # plot(Tort ~ Size, data=forage.data %>% filter(!Species == unique(Species)[i]), las=1, type="p", bty="l",pch=1, col='#AAAAAA88',
@@ -143,8 +144,8 @@ for (i in c(1:6)) {
   panel[[i]] <- panel[[i]] + theme(axis.text.x=element_blank())
 }
 
-(panel[[1]] + panel[[2]] + panel[[3]] + panel[[4]] + panel[[5]] + panel[[6]] + panel[[7]] + panel[[8]] + panel[[9]])
-ggsave('../figures/Fig3a_tort_model.pdf', device='pdf', width = 175, height = 160, units = 'mm')
+(panel[[1]] + panel[[2]] + panel[[3]] + panel[[4]] + panel[[5]] + panel[[6]] + panel[[7]] + panel[[8]] + panel[[9]]) / all.panel + plot_layout(heights=c(4,1))
+ggsave('../figures/Fig3_tort_model_rev.pdf', device='pdf', width = 175, height = 200, units = 'mm')
 
 # title(xlab="Total length (cm)",ylab='Foraging tortuosity', outer=T,
 #       cex.lab=1.7, family="")

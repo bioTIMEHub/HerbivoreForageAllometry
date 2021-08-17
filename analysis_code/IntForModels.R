@@ -24,7 +24,7 @@ require(DHARMa) # model checks
 require(MuMIn)
 
 ## Import data ##
-forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T, sep=',') # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 
 # fix column data type

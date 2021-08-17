@@ -9,10 +9,10 @@ require(patchwork)
 require(scales)
 
 # make sure we load data
-forage.data<-read.table('./src/SpForagingMetrics.csv',header=T) # path relative to repo project folder
+forage.data<-read.table('./src/SpForagingMetrics.csv',header=T,sep=',') # path relative to repo project folder
 forage.data<- forage.data %>% arrange(Species, Size)
 # fix column data type
-forage.data <- forage.data %>% mutate(across(c(Species, SG, Diet, Func), .fns = as.factor))
+forage.data <- forage.data %>% mutate(across(c(Species, Phase, SG, Diet, Func), .fns = as.factor))
 
 # order alphabetically
 forage.data$Species <- factor(forage.data$Species, 
@@ -64,8 +64,7 @@ for (i in 1:9) {
                              lower = var.pred[[i]]$fit - (critval * var.pred[[i]]$se.fit))
 }
 
-
-# Partial predictions (species) -------------------------------------------
+# Mean inter-foray plot -------------------------------------------
 
 # predictions for species if body size was held at the mean
 
@@ -81,8 +80,7 @@ int_order <- partials %>% arrange(desc(pred)) %>% select(Species) %>% as_vector(
 partials$Species <- factor(partials$Species, levels=int_order)
 
 
-# Partial predictions panel -----------------------------------------------
-
+# Partial predictions panel
 # the partial regression for species
 all.panel <- ggplot(data = partials) + 
    geom_linerange(aes(x=Species, ymin=lower, ymax=upper), color = 'grey30', size=0.5) +
@@ -94,10 +92,8 @@ all.panel <- ggplot(data = partials) +
    scale_x_discrete(labels=str_replace_all(int_order, sp_names)) +
    theme(axis.text.x=element_text(angle=30, hjust = 1, face = 'italic'))
 all.panel
-ggsave('../figures/Fig4a_intfor_sp.eps', device='eps', width = 140, height = 50, units = 'mm')
 
-# Mean inter-foray panel loop --------------------------------------------------------------
-
+# Mean inter-foray species panel loop
 # Base R option
 # par(mfrow=c(3,3))
 # par(mar=c(1.5,1.5,1.5,1.5))
@@ -115,10 +111,11 @@ for (i in 1:9) {
                   fill = 'transparent', color = 'black', linetype='dashed', size=0.5) +
       geom_line(data = bind_cols(Fit = int.pred[[int_order[i]]]$fit, Size = sp.data[[int_order[i]]]$Size),
                 aes(x=Size, y=Fit), color = 'black') +
-      geom_point(data = forage.data %>% filter(Species == int_order[i]), aes(y=IntFor, x=Size), color='black', size=1.7) +
+      geom_point(data = forage.data %>% filter(Species == int_order[i]), aes(y=IntFor, x=Size, shape=Phase), color='black', fill='black', size=1.7) +
       annotate("text", label = sp_names[int_order[i]], x = 7, y = 12, fontface=3, hjust=0) +
       theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
-      scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,12), breaks = c(1,2,5,10))
+      scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,12), breaks = c(1,2,5,10)) +
+      scale_shape_manual(values=c(21,2,24), guide=NULL)
    
    ## Base R option
    # plot(IntFor ~ Size, data=forage.data %>% filter(!Species == unique(Species)[i]), las=1, type="p", bty="l",pch=1, col='#AAAAAA88',
@@ -138,10 +135,10 @@ for (i in c(1:6)) {
 }
 
 # print and save
-(int.panel[[1]] + int.panel[[2]] + int.panel[[3]] + int.panel[[4]] + int.panel[[5]] + int.panel[[6]] + int.panel[[7]] + int.panel[[8]] + int.panel[[9]])
-ggsave('../figures/Fig4_intfor_model.eps', device='eps', width = 175, height = 160, units = 'mm')
+(int.panel[[1]] + int.panel[[2]] + int.panel[[3]] + int.panel[[4]] + int.panel[[5]] + int.panel[[6]] + int.panel[[7]] + int.panel[[8]] + int.panel[[9]]) / all.panel + plot_layout(heights=c(4,1))
+ggsave('../figures/Fig3_IntFor_rev.eps', device='eps', width = 175, height = 200, units = 'mm')
 
-# Mean inter-foray panel loop --------------------------------------------------------------
+# Variance inter-foray panel loop --------------------------------------------------------------
 
 # Base R option
 # par(mfrow=c(3,3))
@@ -160,10 +157,11 @@ for (i in 1:9) {
                   fill = 'transparent', color = 'black', linetype='dashed', size=0.5) +
       geom_line(data = bind_cols(Fit = var.pred[[i]]$fit, Size = sp.data[[i]]$Size),
                 aes(x=Size, y=Fit), color = 'black') +
-      geom_point(data = forage.data %>% filter(Species == levels(forage.data$Species)[i]), aes(y=VarInt, x=Size), color='black', size=1.7) +
+      geom_point(data = forage.data %>% filter(Species == levels(forage.data$Species)[i]), aes(y=VarInt, x=Size, shape=Phase), color='black', fill='black', size=1.7) +
       annotate("text", label = sp_names[i], x = 7, y = 120, fontface=3, hjust=0) +
       theme_classic(base_size = 12, base_family = 'Helvetica') + labs(x=NULL, y=NULL) +
-      scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,120), breaks = c(1,5,10,20,50,100))
+      scale_y_continuous(trans=scales::pseudo_log_trans(base=exp(1)), limits = c(0,120), breaks = c(1,5,10,20,50,100)) +
+      scale_shape_manual(values=c(21,2,24), guide=NULL)
    
    ## Base R option
    # plot(VarInt ~ Size, data=forage.data %>% filter(!Species == unique(Species)[i]), las=1, type="p", bty="l",pch=1, col='#AAAAAA88',
@@ -178,11 +176,12 @@ for (i in 1:9) {
 for (i in c(2,3,5,6,8,9)) {
    var.panel[[i]] <- var.panel[[i]] + theme(axis.text.y=element_blank())
 }
-for (i in c(1:6)) {
+for (i in 1:6) {
    var.panel[[i]] <- var.panel[[i]] + theme(axis.text.x=element_blank())
 }
+var.panel[[8]] <- var.panel[[8]] + xlab('Total length (cm)')
 
 # print and save
 (var.panel[[1]] + var.panel[[2]] + var.panel[[3]] + var.panel[[4]] + var.panel[[5]] + var.panel[[6]] + var.panel[[7]] + var.panel[[8]] + var.panel[[9]])
-ggsave('../figures/FigS2_VarInt_model.eps', device='eps', width = 175, height = 160, units = 'mm')
+ggsave('../figures/FigS1_VarInt_rev.eps', device='eps', width = 175, height = 170, units = 'mm')
 
