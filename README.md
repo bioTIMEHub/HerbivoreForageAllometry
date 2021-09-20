@@ -1,6 +1,6 @@
 # HerbivoreForageScaling
 **Manuscript**: _Species differences drive spatial scaling of foraging patterns in herbivorous reef fishes_  
-[https://doi.org/10.1111/oik.08713](https://doi.org/10.1111/oik.08713)
+[https://doi.org/10.1111/oik.08713](https://doi.org/10.1111/oik.08713)  
 **Authors**: Cher FY Chow, Emmy Wassénius, Maria Dornelas, Andrew S Hoey  
 **Corresponding author**: If you have any questions, please reach out to MD via [Github](https://github.com/maadd) or [email](mailto:maadd@st-andrews.ac.uk)    
   
@@ -13,7 +13,7 @@ This repository contains the data and code used for the analysis and figure gene
 
 ## Requirements
 All files were written in R 4.0.0. We recommend executing the repository using this version.  
-**Package dependencies:**
+**Package dependencies:**  
 The package dependencies are declared in each file as `require(package name here)`
 - `quantreg` (v 5.86) 
 - `tidyverse` (v 1.3.1)
@@ -31,14 +31,15 @@ All data is contained in one file `SpForagingMetrics.csv`. It contains observati
 
 ### Abbreviations
 Here are some abbreviations used in the data file and subsequent analyses:
-    - **SG** = Social grouping during foraging (single=1, pair=2, single species chool=3, mixed-species school =4)
-    - **Diet** = Feeding substrata/diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
-    - **Func** = Functional group (excavator=1, scraper=2, grazer/detritivore=3, browser=4)
-    - **Size** = Total length (cm)
-    - **IntFor** = Mean Inter-foray distance (m)
-    - **Area** = Foraging Area
-    - **Tort** = Tortuosity ratio (sum of inter-foray/start-finish)
-    - **VarInt** = Variance of inter-foray distances
+
+- **SG** = Social grouping during foraging (single=1, pair=2, single species chool=3, mixed-species school =4)
+- **Diet** = Feeding substrata/diet (EAM=1, macroalgae=2, Detritus=3, Corticated algae=4, Cyanobacteria=5)
+- **Func** = Functional group (excavator=1, scraper=2, grazer/detritivore=3, browser=4)
+- **Size** = Total length (cm)
+- **IntFor** = Mean Inter-foray distance (m)
+- **Area** = Foraging Area
+- **Tort** = Tortuosity ratio (sum of inter-foray/start-finish)
+- **VarInt** = Variance of inter-foray distances
 
 
 ## Analysis
