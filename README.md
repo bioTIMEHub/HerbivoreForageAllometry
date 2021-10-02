@@ -3,6 +3,7 @@
 [https://doi.org/10.1111/oik.08713](https://doi.org/10.1111/oik.08713)  
 **Authors**: Cher FY Chow, Emmy Wassénius, Maria Dornelas, Andrew S Hoey  
 **Corresponding author**: If you have any questions, please reach out to MD via [Github](https://github.com/maadd) or [email](mailto:maadd@st-andrews.ac.uk)    
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5517172.svg)](https://doi.org/10.5281/zenodo.5517172)  
   
 This repository contains the data and code used for the analysis and figure generation for _Species differences drive spatial scaling of foraging patterns in herbivorous reef fishes_. We used three metrics— foraging area, mean inter-foray distance, and tortuosity— to describe the spatial foraging patterns of 119 herbivorous reef fishes. Our study investigates the potential effects of body size and a range of species traits (feeding substrata, feeding social grouping, functional grouping) on spatial foraging patterns, with the specific aims to:
 
